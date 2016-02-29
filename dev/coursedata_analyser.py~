@@ -1,0 +1,20 @@
+__author__ = "mas2tg"
+
+import psycopg2
+
+def instructor_numbers(dept_id):
+    #connect to db
+    conn = psycopg2.connect(database=db_name, user="postgres", password="password")
+    cur = conn.cursor()
+
+    #Get numbers
+
+    cur.execute("SELECT %s FROM course1;")
+
+    #Save and close
+    conn.commit()
+    cur.close()
+    conn.close()
+
+if __name__ == "__main__":
+    
