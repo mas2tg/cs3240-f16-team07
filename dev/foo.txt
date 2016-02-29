@@ -1,7 +1,3 @@
 bar
-
-
-
 #test change
 hello world
-
