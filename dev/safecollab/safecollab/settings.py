@@ -1,5 +1,5 @@
 """
-Django settings for tango_with_django_project project.
+Django settings for safecollab project.
 
 For more information on this file, see
 https://docs.djangoproject.com/en/1.7/topics/settings/
@@ -11,13 +11,13 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-TEMPLATE_PATH = os.path.join(BASE_DIR, 'templates')
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '+dj4p6&ld$q58c(7s66_=#=@8cx)ftsfqnzqyn_b(t5+5(uh%f'
+SECRET_KEY = '9e=qr&gq)jdg2_=p8=$y@$ro*6b)s-qp*i3xzgsb+3pn2=ih1)'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -36,7 +36,6 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rango',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -49,9 +48,9 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'tango_with_django_project.urls'
+ROOT_URLCONF = 'safecollab.urls'
 
-WSGI_APPLICATION = 'tango_with_django_project.wsgi.application'
+WSGI_APPLICATION = 'safecollab.wsgi.application'
 
 
 # Database
@@ -82,22 +81,3 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 
 STATIC_URL = '/static/'
-
-
-TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-    TEMPLATE_PATH,
-)
-
-
-STATIC_PATH = os.path.join(BASE_DIR,'static')
-
-STATICFILES_DIRS = (
-    STATIC_PATH,
-)
-
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media') # Absolute path to the media directory
