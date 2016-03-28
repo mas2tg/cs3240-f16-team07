@@ -10,5 +10,12 @@
         <h1>SafeCollab says...</h1>
         hello world! <strong>{{ boldmessage }}</strong><br />
         <a href="/safecollab/about/">About</a><br />
+
+        <form action="/register-user/" method="post">
+    		{% csrf_token %}
+    		{{ registerform }}
+    		<input type="submit" value="Submit" />
+		</form>
+
     </body>
 </html>

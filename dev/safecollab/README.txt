@@ -27,3 +27,11 @@ python manage.py startapp "APP_NAME"	[Creates new Django app]
 python manage.py syncdb			[Creates new database to reflect models.py, deprecated as of Django 1.7 in favor of migrate / makemigrations]
 python manage.py migrate		[Looks at the INSTALLED_APPS and creates necessary database tables]
 python manage.py runserver		[Starts Django test server]
+
+==========
+psql notes
+==========
+For initial setup to enable development, open psql command line and enter the following commands:
+CREATE DATABASE safecollab;
+CREATE USER admin WITH SUPERUSER PASSWORD 'admin';
+GRANT ALL PRIVILEGES TO DATABASE safecollab TO admin;

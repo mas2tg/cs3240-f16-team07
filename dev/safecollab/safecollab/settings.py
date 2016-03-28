@@ -63,8 +63,12 @@ WSGI_APPLICATION = 'safecollab.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': DATABASE_PATH,
+    	'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'safecollab',
+        'USER': 'admin',
+        'PASSWORD': 'admin',
+        'HOST': 'localhost',
+        'PORT': '',
     }
 }
 
