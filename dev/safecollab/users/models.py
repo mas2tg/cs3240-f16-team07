@@ -8,20 +8,18 @@ class User(models.Model):
     password = models.CharField(max_length=30)			# Password
     site_manager = models.BooleanField(default=False)	# Site-manager field
 
-class RegisterForm(forms.Form):
+class RegisterForm(forms.ModelForm):
 	class Meta:
 		model = User
-		first_name = forms.CharField(max_length=30)
-		password = forms.PasswordInput()
-		fields = ['first_name','last_name','user_id','password']
+		fields = ('first_name','last_name','user_id','password')
 		widgets = {
 			'password': forms.PasswordInput(),
 		}
 
-class LoginForm(forms.Form):
+class LoginForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['user_id','password']
+        fields = ('user_id','password')
         widgets = {
             'password': forms.PasswordInput(),
         }
