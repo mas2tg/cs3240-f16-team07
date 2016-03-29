@@ -1,25 +1,29 @@
 from django.db import models
 from django import forms
+from django.contrib.auth.models import User
 
-class User(models.Model):
-    first_name = models.CharField(max_length=30)		# First name
-    last_name = models.CharField(max_length=30)			# Last name
-    user_id = models.CharField(max_length=30)			# User ID
-    password = models.CharField(max_length=30)			# Password
-    site_manager = models.BooleanField(default=False)	# Site-manager field
+class UserProfile(models.Model):
+	# Django documentation for built-in User model:
+	#	https://docs.djangoproject.com/en/1.7/ref/contrib/auth/#django.contrib.auth.models.User
+    
+	# This line is required. Links UserProfile to a User model instance.
+	user = models.OneToOneField(User)
 
-class RegisterForm(forms.ModelForm):
+	# The additional attributes we wish to include.
+	website = models.URLField(blank=True)
+	picture = models.ImageField(upload_to='profile_images', blank=True)
+
+	# Override the __unicode__() method to return out something meaningful!
+	def __unicode__(self):
+		return self.user.username
+
+class UserForm(forms.ModelForm):
+	password = forms.CharField(widget=forms.PasswordInput())
+
 	class Meta:
-		model = User
-		fields = ('first_name','last_name','user_id','password')
-		widgets = {
-			'password': forms.PasswordInput(),
-		}
+		fields = ('username', 'password', 'first_name', 'last_name', 'email')
 
-class LoginForm(forms.ModelForm):
+class UserProfileForm(forms.ModelForm):
     class Meta:
-        model = User
-        fields = ('user_id','password')
-        widgets = {
-            'password': forms.PasswordInput(),
-        }
+        model = UserProfile
+        fields = ('website', 'picture')

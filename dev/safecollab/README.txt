@@ -2,6 +2,7 @@
 Django admin account info
 =========================
 NOTE: Remove this section prior to public release.
+NOTE: Run python script 'create_django_admin_account.py' to initialize Django admin account.
 Username: admin
 Password: admin
 Access URL: /admin/
@@ -25,8 +26,10 @@ Django notes
 ============
 python manage.py startapp "APP_NAME"	[Creates new Django app]
 python manage.py syncdb			[Creates new database to reflect models.py, deprecated as of Django 1.7 in favor of migrate / makemigrations]
+python manage.py makemigrations		[Creates migrations to be executed by 'migrate']
 python manage.py migrate		[Looks at the INSTALLED_APPS and creates necessary database tables]
 python manage.py runserver		[Starts Django test server]
+python manage.py flush			[Clear database tables]
 
 ==========
 psql notes
