@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+
+<html>
+	
+	<head>
+        <title>SafeCollab</title>
+    </head>
+
+    <body>
+        
+        <h1>{{ group.name }}</h1> <br/>
+        Member(s): <br/>
+        {% for user in users %}
+            {{ user.username }} <br/>
+        {% endfor %}
+        <br/><br/>
+        <strong>Add members to group!</strong> <br/>
+        <form id="create_group_form" method="post" action="/add-user-to-group/">
+            {% csrf_token %}
+            Username: <input type="text" name="username" value="" size="30" />
+            <input type="hidden" name="group_id" value="{{ group.id }}" />
+            <input type="submit" name="submit" value="submit" />
+        </form>
+        
+    </body>
+
+</html>

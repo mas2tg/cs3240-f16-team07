@@ -8,8 +8,45 @@
 
     <body>
         <p>Hello {{ user.username }}!</p>
-        <a href="/logout/">Logout</a>
+        <a href="/logout/">Logout</a> <br/>
+        <br/>
+
+        <strong>Create a new group!</strong> <br/>
+        <form id="create_group_form" method="post" action="/create-group/">
+            {% csrf_token %}
+            Group name: <input type="text" name="group_name" value="" size="30" />
+            <br />
+            
+            <input type="submit" name="submit" value="submit" />
+        </form>
+        <br/>
+
+        {% if perms.users.site_manager %}
+        <strong>Grant SM privileges to another user!</strong> <br/>
+        <form id="new-site-manager" method="post" action="/new-site-manager/">
+            {% csrf_token %}
+            Username: <input type="text" name="username" value="" size="30" /> <br />
+            <input type="submit" name="submit" value="submit" />
+        </form>
+        <br/>
         
+        <strong>Suspend a user account.</strong> <br/>
+        <form id="suspend-user" method="post" action="/suspend-user/">
+            {% csrf_token %}
+            Username: <input type="text" name="username" value="" size="30" /> <br />
+            <input type="submit" name="submit" value="submit" />
+        </form>
+        <br/>
+
+        <strong>Restore a user account.</strong> <br/>
+        <form id="restore-user" method="post" action="/restore-user/">
+            {% csrf_token %}
+            Username: <input type="text" name="username" value="" size="30" /> <br />
+            <input type="submit" name="submit" value="submit" />
+        </form>
+        <br/>
+        {% endif %}
+
     </body>
 
 </html>
