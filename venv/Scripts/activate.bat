@@ -1,5 +1,4 @@
 @echo off
-set "VIRTUAL_ENV=C:\Users\Nathan\Documents\UVA\Semester 4\CS 3240\cs3240-f16-team07\venv"
 
 if defined _OLD_VIRTUAL_PROMPT (
     set "PROMPT=%_OLD_VIRTUAL_PROMPT%"

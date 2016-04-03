@@ -39,9 +39,6 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="$(if [ "$OSTYPE" "==" "cygwin" ]; then cygpath -u 'C:\Users\Nathan\Documents\UVA\Semester 4\CS 3240\cs3240-f16-team07\venv'; else echo '/C/Users/Nathan/Documents/UVA/Semester 4/CS 3240/cs3240-f16-team07/venv'; fi;)"
-export VIRTUAL_ENV
-
 _OLD_VIRTUAL_PATH="$PATH"
 PATH="$VIRTUAL_ENV/Scripts:$PATH"
 export PATH
