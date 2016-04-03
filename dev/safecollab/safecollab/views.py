@@ -134,23 +134,22 @@ def create_group(request):
 	if request.method == 'POST':
 		current_user = request.user
 		group_name = request.POST.get('group_name')
-		new_group = Group.objects.create(name=group_name)
 		
-		""" This stuff is srelevant if duplicate group names are not allowed """
-		# new_group, created = Group.objects.get_or_create(name=group_name)
-		# if not created:
-		# 	# Group already exists under that name
-		# 	return HttpResponse('Group under name "' + group_name + '" already exists.')
+		""" This stuff is relevant if duplicate group names are not allowed """
+		new_group, created = Group.objects.get_or_create(name=group_name)
+		if not created:
+			# Group already exists under that name
+			return HttpResponse('Group under name "' + group_name + '" already exists. Click <a href="/group-summary?name=' + group_name + '">here</a> for group summary.')
 
 		current_user.groups.add(new_group)
 		
-		return HttpResponseRedirect('/group-summary?group-id='+str(new_group.id))
+		return HttpResponseRedirect('/group-summary?name='+str(new_group.name))
 	return HttpResponse('Inappropriate arrival at /create-group/')
 
 def group_summary(request):
 	if request.method == 'GET':
-		group_id = request.GET.get('group-id')
-		group = Group.objects.get(id=group_id)
+		group_name = request.GET.get('name')
+		group = Group.objects.get(name=group_name)
 		users = group.user_set.all()
 
 		context_dict = {
@@ -164,15 +163,15 @@ def group_summary(request):
 def add_user_to_group(request):
 	if request.method == 'POST':
 		username = request.POST.get('username')
-		group_id = int(request.POST.get('group_id')) # Must be an int
+		group_name = request.POST.get('group_name')
 		
-		group = Group.objects.get(id=group_id)
+		group = Group.objects.get(name=group_name)
 		user = User.objects.get(username=username)
 		# TODO: add check for whether group/user exists
 
 		user.groups.add(group)
 
-		return HttpResponseRedirect('/group-summary?group-id='+str(group_id))
+		return HttpResponseRedirect('/group-summary?name='+group_name)
 
 	return HttpResponse('Inappropriate arrival at /add-user-to-group/')
 

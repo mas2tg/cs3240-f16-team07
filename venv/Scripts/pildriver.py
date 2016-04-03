@@ -1,4 +1,4 @@
-#!C:\Users\Nathan\Documents\UVA\Semester 4\CS 3240\cs3240-f16-team07\venv\Scripts\python.exe
+#!c:\windows\system32\cmd.exe /c python.exe
 """PILdriver, an image-processing calculator using PIL.
 
 An instance of class PILDriver is essentially a software stack machine
@@ -49,6 +49,9 @@ of its upper-left-hand corner and displays the cropped portion.
 #
 
 from __future__ import print_function
+
+import os; activate_this=os.path.join(os.path.dirname(os.path.realpath(__file__)), 'activate_this.py'); exec(compile(open(activate_this).read(), activate_this, 'exec'), dict(__file__=activate_this)); del os, activate_this
+
 
 from PIL import Image
 

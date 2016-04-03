@@ -2,8 +2,8 @@ from django.db import models
 from django import forms
 from django.contrib.auth.models import User, Group
 
-# Allow multiple Groups with the same name
-Group._meta.get_field('name')._unique = False
+# # Allow multiple Groups with the same name
+# Group._meta.get_field('name')._unique = False
 
 class UserProfile(models.Model):
 	# Django documentation for built-in User model:
