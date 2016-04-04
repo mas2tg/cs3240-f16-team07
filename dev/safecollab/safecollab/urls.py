@@ -1,4 +1,6 @@
+from django.conf import settings
 from django.conf.urls import patterns, include, url
+from django.conf.urls.static import static
 from django.contrib import admin
 from safecollab import views
 
@@ -19,5 +21,10 @@ urlpatterns = patterns('',
     url(r'^new-site-manager', views.new_site_manager, name='new-site-manager'),
     url(r'^suspend-user', views.suspend_user, name='suspend-user'),
     url(r'^restore-user', views.restore_user, name='restore-user'),
+    url(r'^reports/', include('reports.urls')),
     url(r'^$', views.index, name='index'),
 )
+
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
