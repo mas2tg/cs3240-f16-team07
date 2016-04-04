@@ -7,9 +7,29 @@
     </head>
 
     <body>
-        <p>Hello {{ user.username }}!</p>
+    	<p>Hello {{ user.username }}!</p>
         <a href="/logout/">Logout</a> <br/>
         <br/>
+   <strong>Add a Report!</strong> 
+ 
+
+        <form id="report_form" enctype="multipart/form-data"  method="post" action="/reports/add_report/">
+
+            {% csrf_token %}
+            {% for hidden in form.hidden_fields %}
+                {{ hidden }}
+            {% endfor %}
+
+            {% for field in form.visible_fields %}
+                {{ field.errors }}
+                {{ field.help_text }}
+                {{ field }}
+            {% endfor %}
+
+            <input type="submit" name="submit" value="Upload Report" />
+        </form>
+<br></br>
+
 
         <strong>Create a new group!</strong> <br/>
         <form id="create_group_form" method="post" action="/create-group/">
