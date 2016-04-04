@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Report</title>
+    </head>
+
+    <body>
+        <h1>Add a Report</h1>
+
+        <form id="report_form" enctype="multipart/form-data"  method="post" action="/reports/add_report/">
+
+            {% csrf_token %}
+            {% for hidden in form.hidden_fields %}
+                {{ hidden }}
+            {% endfor %}
+
+            {% for field in form.visible_fields %}
+                {{ field.errors }}
+                {{ field.help_text }}
+                {{ field }}
+            {% endfor %}
+
+            <input type="submit" name="submit" value="Up Load Rreport" />
+        </form>
+    </body>
+
+</html>
