@@ -10,7 +10,8 @@ class UserProfile(models.Model):
 	#	https://docs.djangoproject.com/en/1.7/ref/contrib/auth/#django.contrib.auth.models.User
     
 	# This line is required. Links UserProfile to a User model instance.
-	user = models.OneToOneField(User)
+	# related_name helps with accessing UserProfile when you have corresponding User.
+	user = models.OneToOneField(User, related_name='user_profile')
 
 	# The additional attributes we wish to include.
 	website = models.URLField(blank=True)

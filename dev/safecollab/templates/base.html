@@ -43,7 +43,10 @@
 					</li>
 				    {% else %}
 				    <li>
-				    	<p class="navbar-text">Hello {{ user.username }}</p>
+				    	<div class="navbar-text">
+				    		<img style="max-height: 20px; overflow: visible; padding-top: 0; padding-bottom: 0;" src="{{ user.user_profile.picture.url }}" />
+				    		Hello {{ user.username }}
+				    	</div>
 				    </li>
 				    <li>
         				<a href="/users/logout"><span class="glyphicon glyphicon-log-out"></span> Logout</a>
