@@ -1,18 +1,20 @@
-<!DOCTYPE html>
+{% extends 'base.html' %}
 
-<html>
-	
-	<head>
-        <title>SafeCollab</title>
-    </head>
+{% block body_block %}
 
-    <body>
+        <h2>Register</h2>
+        <form id="user_form" method="post" action="/users/register" enctype="multipart/form-data">
 
-        <h1>SafeCollab says...</h1>
-        hello world! <strong>{{ boldmessage }}</strong><br />
-        <a href="/register/">Register</a><br />
-    	<a href="/login/">Login</a><br />
+            {% csrf_token %}
 
-    </body>
+            <!-- Display each form. The as_p method wraps each element in a paragraph
+                 (<p>) element. This ensures each element appears on a new line,
+                 making everything look neater. -->
+            {{ user_form.as_p }}
+            {{ profile_form.as_p }}
 
-</html>
+            <!-- Provide a button to click to submit the form. -->
+            <input type="submit" name="submit" value="Register" />
+        </form>
+
+{% endblock %}

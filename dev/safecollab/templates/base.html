@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+
+<html>
+	{% load staticfiles %}
+	
+	<head>
+        <title>SafeCollab</title>
+    	<link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap.min.css' %}" />
+    	<!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" /> -->
+    </head>
+
+    <body>
+
+		<nav class="navbar navbar-inverse navbar-static-top">
+			<div class="container">
+				<div class="navbar-header">
+					<a class="navbar-brand" href="/">SafeCollab</a>
+				</div>
+
+				{% if user.is_authenticated %}
+			    <ul class="nav navbar-nav">
+			    	{% url 'home' as home_url %}
+			    	{% url 'reports' as reports_url %}
+			    	<li {% if request.get_full_path == home_url %}class="active"{% endif %}><a href="/home">Home</a></li>
+			    	<li {% if request.get_full_path == reports_url %}class="active"{% endif %}><a href="/reports">Reports</a></li>
+			    </ul>
+			    {% endif %}
+
+			    <ul class="nav navbar-nav navbar-right">
+			    	{% if not user.is_authenticated %}
+					
+			    	<li>
+			    		<form class="form-horizontal" role="form" method="post" action="/users/login">
+						    {% csrf_token %}
+						    <div class="control-group">
+							    <div class="controls form-inline">
+									<input type="text" name="username" class="form-control" id="usr" placeholder="Username">
+									<input type="password" name="password" class="form-control" id="pwd" placeholder="Password">
+									<button class="btn btn-default navbar-btn" type="submit" name="submit"><span class="glyphicon glyphicon-log-in"></span> Login</button>
+								</div>
+							</div>
+						</form>
+					</li>
+				    {% else %}
+				    <li>
+				    	<p class="navbar-text">Hello {{ user.username }}</p>
+				    </li>
+				    <li>
+        				<a href="/users/logout"><span class="glyphicon glyphicon-log-out"></span> Logout</a>
+    				</li>
+				    
+				    {% endif %}
+    				<!-- <li><a href="#"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li> -->
+    			</ul>
+			</div>
+		</nav>
+
+        <div>
+            {% block body_block %}{% endblock %}
+        </div>
+        
+
+
+		<!-- <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script> -->
+		<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script> -->
+    </body>
+
+</html>

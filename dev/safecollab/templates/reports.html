@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block body_block %}
+    {% if reports %}
+
+        <ul>
+            {% for report in reports %}
+            <li><h1>{{ report.name }}</h1><br><h3>{{ report.description }}</h3></li>
+
+            {% endfor %}
+        </ul>
+
+
+    {% else %}
+        There are no reports!
+    {% endif %}
+{% endblock %}

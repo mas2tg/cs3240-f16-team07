@@ -1,19 +1,10 @@
-<!DOCTYPE html>
+{% extends 'base.html' %}
 
-<html>
-	
-	<head>
-        <title>SafeCollab</title>
-    </head>
+{% block body_block %}
 
-    <body>
-    	<p>Hello {{ user.username }}!</p>
-        <a href="/logout/">Logout</a> <br/>
-        <br/>
-   <strong>Add a Report!</strong> 
- 
 
-        <form id="report_form" enctype="multipart/form-data"  method="post" action="/reports/add_report/">
+        <strong>Add a Report!</strong> 
+        <form id="report_form" enctype="multipart/form-data"  method="post" action="/reports/add-report">
 
             {% csrf_token %}
             {% for hidden in form.hidden_fields %}
@@ -24,15 +15,16 @@
                 {{ field.errors }}
                 {{ field.help_text }}
                 {{ field }}
+                <br/>
             {% endfor %}
 
             <input type="submit" name="submit" value="Upload Report" />
         </form>
-<br></br>
+        <br></br>
 
 
         <strong>Create a new group!</strong> <br/>
-        <form id="create_group_form" method="post" action="/create-group/">
+        <form id="create_group_form" method="post" action="/users/create-group">
             {% csrf_token %}
             Group name: <input type="text" name="group_name" value="" size="30" />
             <br />
@@ -43,7 +35,7 @@
 
         {% if perms.users.site_manager %}
         <strong>Grant SM privileges to another user!</strong> <br/>
-        <form id="new-site-manager" method="post" action="/new-site-manager/">
+        <form id="new-site-manager" method="post" action="/users/new-site-manager">
             {% csrf_token %}
             Username: <input type="text" name="username" value="" size="30" /> <br />
             <input type="submit" name="submit" value="submit" />
@@ -51,7 +43,7 @@
         <br/>
         
         <strong>Suspend a user account.</strong> <br/>
-        <form id="suspend-user" method="post" action="/suspend-user/">
+        <form id="suspend-user" method="post" action="/users/suspend-user">
             {% csrf_token %}
             Username: <input type="text" name="username" value="" size="30" /> <br />
             <input type="submit" name="submit" value="submit" />
@@ -59,7 +51,7 @@
         <br/>
 
         <strong>Restore a user account.</strong> <br/>
-        <form id="restore-user" method="post" action="/restore-user/">
+        <form id="restore-user" method="post" action="/users/restore-user/">
             {% csrf_token %}
             Username: <input type="text" name="username" value="" size="30" /> <br />
             <input type="submit" name="submit" value="submit" />
@@ -67,6 +59,4 @@
         <br/>
         {% endif %}
 
-    </body>
-
-</html>
+{% endblock %}
