@@ -6,7 +6,7 @@ from users.models import User
 
 
 class Report(models.Model):
-	creator = models.ForeignKey(User, default=None, null=True)			# User ID of user who submitted report
+	creator = models.ForeignKey(User, related_name='creator')			# User ID of user who submitted report
 	encrypted = models.BooleanField(default=False)
 	path = models.FileField(storage=FileSystemStorage(location=settings.MEDIA_ROOT), upload_to='attachments', default=None, null=True)
 	name = models.CharField(max_length=100)
@@ -16,7 +16,7 @@ class ReportForm(forms.ModelForm):
     name = forms.CharField(max_length=128, help_text="Please enter the name.")
     description = forms.CharField(max_length=300, help_text="Please enter the description.")
     path = forms.FileField(help_text="Please select the report to upload")
-
+    
     class Meta:
             model = Report
             fields = [

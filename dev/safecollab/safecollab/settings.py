@@ -41,6 +41,7 @@ INSTALLED_APPS = (
     'safecollab',
     'users',
     'reports',
+    'inbox',
 )
 
 MIDDLEWARE_CLASSES = (

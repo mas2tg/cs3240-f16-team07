@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+	
+{% block body_block %}
+
+<h2>Send message:</h2><br/>
+
+<form id="message-form" method="post" action="/inbox/send">
+	{% csrf_token %}
+	To: <input type="text" name="sender" value="" size="30" />
+	<br />
+	From: <input type="text" name="recipient" value="" size="30" />
+	<br />
+	Message: <input type="text" name="body" value="" size="200" />
+	<br />
+
+	<input type="submit" name="send" value="send" />
+</form>
+
+{% endblock %}

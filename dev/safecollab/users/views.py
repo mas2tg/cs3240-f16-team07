@@ -178,11 +178,11 @@ def create_group(request):
 		new_group, created = Group.objects.get_or_create(name=group_name)
 		if not created:
 			# Group already exists under that name
-			return HttpResponse('Group under name "' + group_name + '" already exists. Click <a href="/group-summary?name=' + group_name + '">here</a> for group summary.')
+			return HttpResponse('Group under name "' + group_name + '" already exists. Click <a href="/groups?name=' + group_name + '">here</a> for group summary.')
 
 		current_user.groups.add(new_group)
 		
-		return HttpResponseRedirect('/group-summary?name='+str(new_group.name))
+		return HttpResponseRedirect('/groups?name='+str(new_group.name))
 	return HttpResponse('Inappropriate arrival at /create-group/')
 
 def add_user_to_group(request):
@@ -196,6 +196,6 @@ def add_user_to_group(request):
 
 		user.groups.add(group)
 
-		return HttpResponseRedirect('/group-summary?name='+group_name)
+		return HttpResponseRedirect('/groups?name='+group_name)
 
 	return HttpResponse('Inappropriate arrival at /add-user-to-group/')

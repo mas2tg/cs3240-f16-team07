@@ -12,10 +12,10 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
     url(r'^users/', include('users.urls')),
     url(r'^reports/', include('reports.urls')),
+    url(r'^inbox/', include('inbox.urls')),
     url(r'^index', views.index, name='index'),
     url(r'^home', views.home, name='home'),
-    url(r'^group-summary', views.group_summary, name='group-summary'),
-    url(r'^reports', views.reports, name='reports'),
+    url(r'^groups', views.groups, name='groups'),
     url(r'^$', views.index, name='index'),
 )
 

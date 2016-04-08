@@ -22,7 +22,7 @@ def home(request):
 		'form': ReportForm(),
 		})
 
-def group_summary(request):
+def groups(request):
 	if request.method == 'GET':
 		group_name = request.GET.get('name')
 		group = Group.objects.get(name=group_name)
@@ -34,7 +34,8 @@ def group_summary(request):
 		}
 
 		return render(request, 'group_summary.html', context_dict)
-	return HttpResponse('Inappropriate arrival at /group-summary')
+	# Change the following line to a general groups page later on.
+	return HttpResponse('Inappropriate arrival at /group')
 
 
 def reports(request):

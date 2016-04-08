@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.conf.urls import patterns, url
 from users import views
-import safecollab
 
 urlpatterns = patterns('',
 	url(r'^register', views.register, name='register'),
