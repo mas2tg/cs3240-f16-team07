@@ -1,14 +1,29 @@
 {% extends 'base.html' %}
 
 {% block body_block %}
-    
+    <h1>{{ test }}</h1>
+    <form method="GET" action="">
+
+    <select name="type">
+        <option value="name">name</option>
+        <option value="description">description</option>
+    </select>
+    <input type="text" name="q" size="50" placeholder="What are you looking for?" value="{{ request.GET.q }}"/>
+    <input type="submit" value="Search">
+    </form>
+
+    <br>
+    <br>
     {% if reports %}
-        <ul>
+
+    <table border="1" style="width:100%">
+    <tr style="background-color:grey"><td>Report Name</td><td>Report Description</td><td>Download</td></tr>
             {% for report in reports %}
-            <li><h1>{{ report.name }}</h1><br><h3>{{ report.description }}</h3></li>
+            <tr><td>{{ report.name }}</td><td>{{ report.description }}</td><td><a href="/reports/{{ report.path }}">click here to download</a></td></tr>
 
             {% endfor %}
-        </ul>
+      </table>
+
 
     {% else %}
         There are no reports!

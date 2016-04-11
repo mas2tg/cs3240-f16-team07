@@ -8,5 +8,5 @@ urlpatterns = patterns('',
 	url(r'mark-as-unread', views.mark_as_unread, name='mark-as-unread'),
 	url(r'delete', views.delete, name='delete'),
 	url(r'decrypt',views.decrypt, name='decrypt'),
-	url(r'^$', views.index, name='inbox'),
+	url(r'^$', views.index, name='index'),
 )
