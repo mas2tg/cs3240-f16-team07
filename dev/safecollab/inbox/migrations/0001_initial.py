@@ -16,12 +16,12 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Message',
             fields=[
-                ('id', models.AutoField(serialize=False, verbose_name='ID', primary_key=True, auto_created=True)),
+                ('id', models.AutoField(primary_key=True, verbose_name='ID', auto_created=True, serialize=False)),
                 ('body', models.CharField(max_length=2000)),
-                ('date', models.DateField(default=datetime.date.today)),
+                ('timestamp', models.DateTimeField(default=datetime.datetime(2016, 4, 9, 15, 10, 17, 803916))),
                 ('read', models.BooleanField(default=False)),
-                ('recipient', models.ForeignKey(related_name='recipient', to=settings.AUTH_USER_MODEL)),
-                ('sender', models.ForeignKey(related_name='sender', to=settings.AUTH_USER_MODEL)),
+                ('recipient', models.ForeignKey(to=settings.AUTH_USER_MODEL, related_name='recipient')),
+                ('sender', models.ForeignKey(to=settings.AUTH_USER_MODEL, related_name='sender')),
             ],
             options={
             },

@@ -1,9 +1,18 @@
 from django.db import models
 from django import forms
 from django.contrib.auth.models import User, Group
+from inbox.models import Message
 
 # # Allow multiple Groups with the same name
 # Group._meta.get_field('name')._unique = False
+
+def get_received_messages(self):
+	return Message.objects.filter(recipient=self)
+def get_unread_messages(self):
+	return Message.objects.filter(recipient=self, read=False)
+
+User.add_to_class('get_received_messages', get_received_messages)
+User.add_to_class('get_unread_messages', get_unread_messages)
 
 class UserProfile(models.Model):
 	# Django documentation for built-in User model:

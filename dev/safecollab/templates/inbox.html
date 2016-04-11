@@ -1,19 +1,153 @@
 {% extends 'base.html' %}
+
+{% block css_block %}
+<style>
+	a.list-group-item.read { color: #222;background-color: #F3F3F3; }
+</style>
+{% endblock %}
 	
-{% block body_block %}
+{% block content_block %}
 
-<h2>Send message:</h2><br/>
+<h2>Compose message</h2><br/>
 
-<form id="message-form" method="post" action="/inbox/send">
+<form class="form" role="form" id="message-form" method="post" action="/inbox/send">
 	{% csrf_token %}
-	To: <input type="text" name="sender" value="" size="30" />
+	To: <input class="form-control" type="text" name="recipient" value="" size="30" /> <br />
 	<br />
-	From: <input type="text" name="recipient" value="" size="30" />
-	<br />
-	Message: <input type="text" name="body" value="" size="200" />
+
+	Message:
+	<textarea class="form-control" name="body" value="" size="200"> </textarea>
 	<br />
 
 	<input type="submit" name="send" value="send" />
 </form>
+
+<h2>Messages</h2><br/>
+
+<button type="button" class="btn btn-default" onclick="markMessagesAsRead()">Mark as read</button>
+<button type="button" class="btn btn-default" onclick="markMessagesAsUnread()">Mark as unread</button>
+<button type="button" class="btn btn-default" onclick="deleteMessages()"><span class="glyphicon glyphicon-trash"></span></button>
+
+<script>
+
+	function getCookie(name) {
+		var cookieValue = null;
+		if (document.cookie && document.cookie != '') {
+			var cookies = document.cookie.split(';');
+			for (var i = 0; i < cookies.length; i++) {
+				var cookie = jQuery.trim(cookies[i]);
+				// Does this cookie string begin with the name we want?
+				if (cookie.substring(0, name.length + 1) == (name + '=')) {
+					cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+					break;
+				}
+			}
+		}
+		return cookieValue;
+	}
+
+	function getSelectedMessages() {
+		var selected = [];
+		$('#message-list input:checked').each(function() {
+			selected.push($(this).attr('id'));
+		});
+		return selected;
+	}
+
+	function deleteMessages() {
+		var selected = getSelectedMessages();
+		for (i=0; i < selected.length; i++) {
+			var id = selected[i];
+			$("a[id='"+id+"']").remove();
+		}
+		$.ajax({
+			headers: { "X-CSRFToken": getCookie('csrftoken') },
+			type: 'POST',
+			url: '/inbox/delete',
+			data: {
+				message_ids: selected,
+			},
+			success: function(response) {
+				var data = JSON.parse(response);
+				document.getElementById('new-message-count').innerHTML = data['message_count'];
+			},
+		});
+	}
+
+	function markMessagesAsRead() {
+		var selected = getSelectedMessages();
+		for (i=0; i < selected.length; i++) {
+			var id = selected[i];
+			$("a[id='"+id+"']").addClass('read')
+		}
+		$.ajax({
+			headers: { "X-CSRFToken": getCookie('csrftoken') },
+			type: 'POST',
+			url: '/inbox/mark-as-read',
+			data: {
+				message_ids: selected,
+			},
+			success: function(response) {
+				var data = JSON.parse(response);
+				document.getElementById('new-message-count').innerHTML = data['message_count'];
+			},
+		});
+	}
+
+	function markMessagesAsUnread() {
+		var selected = getSelectedMessages();
+		for (i=0; i < selected.length; i++) {
+			var id = selected[i];
+			$("a[id='"+id+"']").removeClass('read')
+		}
+		$.ajax({
+			headers: { "X-CSRFToken": getCookie('csrftoken') },
+			type: 'POST',
+			url: '/inbox/mark-as-unread',
+			data: {
+				message_ids: selected,
+			},
+			success: function(response) {
+				var data = JSON.parse(response);
+				document.getElementById('new-message-count').innerHTML = data['message_count'];
+			},
+		});
+	}
+</script>
+
+<!-- <div class="pull-right">
+	<span class="text-muted"><b>1</b>–<b>50</b> of <b>160</b></span>
+	<div class="btn-group btn-group-sm">
+		<button type="button" class="btn btn-default">
+			<span class="glyphicon glyphicon-chevron-left"></span>
+		</button>
+		<button type="button" class="btn btn-default">
+			<span class="glyphicon glyphicon-chevron-right"></span>
+		</button>
+	</div>
+</div> -->
+
+<br/><br/>
+
+<div class="list-group" id="message-list">
+{% for message in user.get_received_messages|dictsortreversed:'timestamp' %}
+	<a class="list-group-item{% if message.read %} read{% endif %}" style="display:table;" id="{{ message.id }}">
+		<span style="min-width: 22px; display: table-cell;">
+			<label>
+				<input type="checkbox" id="{{ message.id }}">
+			</label>
+		</span>
+		<span class="name" style="min-width: 120px; display: table-cell;">{{ message.sender }}</span>
+		<span class="inline-block" style="display: table-cell; width: 100%;">{{ message.body|linebreaks }}</span>
+		<span class="badge">
+			{% if message.sent_today %}
+				{{ message.timestamp|date:'g:i A' }}
+			{% else %}
+				{{ message.timestamp|date:'d/m/y' }}
+			{% endif %}
+		</span>
+	</a>
+{% endfor %}
+</div>
 
 {% endblock %}
