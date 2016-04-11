@@ -24,15 +24,18 @@ def home(request):
 
 def groups(request):
 	if request.method == 'GET':
-		group_name = request.GET.get('name')
-		group = Group.objects.get(name=group_name)
-		users = group.user_set.all()
+		if 'name' in request.GET:
+			group_name = request.GET.get('name')
+			group = Group.objects.get(name=group_name)
+			users = group.user_set.all()
 
-		context_dict = {
-			'group': group,
-			'users': users,
-		}
+			context_dict = {
+				'group': group,
+				'users': users,
+			}
 
-		return render(request, 'group_summary.html', context_dict)
+			return render(request, 'group_summary.html', context_dict)
+		else:
+			return render(request, 'groups.html')
 	# Change the following line to a general groups page later on.
 	return HttpResponse('Inappropriate arrival at /group')
