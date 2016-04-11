@@ -3,6 +3,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group, Permission
+from users.models import UserForm, UserProfile, UserProfileForm
 
 ###############################
 #####                     #####
@@ -53,12 +54,14 @@ def register(request):
 
 			# Update our variable to tell the template registration was successful.
 			registered = True
+			return HttpResponseRedirect('/home')
 
 		# Invalid form or forms - mistakes or something else?
 		# Print problems to the terminal.
 		# They'll also be shown to the user.
 		else:
 			print(user_form.errors, profile_form.errors)
+			return HttpResponse('Errors with form')
 
 	# Not a HTTP POST, this should never happen
 	else:
