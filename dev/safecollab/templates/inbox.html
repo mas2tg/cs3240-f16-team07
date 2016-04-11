@@ -8,25 +8,23 @@
 	
 {% block content_block %}
 
-<h2>Compose message</h2><br/>
+<h2>Compose message</h2>
 
 <form class="form" role="form" id="message-form" method="post" action="/inbox/send">
 	{% csrf_token %}
-	To: <input class="form-control" type="text" name="recipient" value="" size="30" /> <br />
-	<br />
+	<div class="form-group">
+		<label for="recipient">To:</label>
+		<input class="form-control" type="text" name="recipient" id="recipient" value="" size="30" />
+	</div>
+	<div class="form-group">
+		<label for="body">Message:</label>
+		<textarea class="form-control" name="body" id="body" value="" size="200"> </textarea>
+	</div>
 
-	Message:
-	<textarea class="form-control" name="body" value="" size="200"> </textarea>
-	<br />
-
-	<input type="submit" name="send" value="send" />
+	<button class="btn btn-default navbar-btn" type="submit" name="submit">Send</button><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="encrypt" id="encrypt"/> Encrypt</span>
 </form>
 
-<h2>Messages</h2><br/>
-
-<button type="button" class="btn btn-default" onclick="markMessagesAsRead()">Mark as read</button>
-<button type="button" class="btn btn-default" onclick="markMessagesAsUnread()">Mark as unread</button>
-<button type="button" class="btn btn-default" onclick="deleteMessages()"><span class="glyphicon glyphicon-trash"></span></button>
+<h2>Messages</h2>
 
 <script>
 
@@ -67,8 +65,7 @@
 			data: {
 				message_ids: selected,
 			},
-			success: function(response) {
-				var data = JSON.parse(response);
+			success: function(data) {
 				document.getElementById('new-message-count').innerHTML = data['message_count'];
 			},
 		});
@@ -87,8 +84,7 @@
 			data: {
 				message_ids: selected,
 			},
-			success: function(response) {
-				var data = JSON.parse(response);
+			success: function(data) {
 				document.getElementById('new-message-count').innerHTML = data['message_count'];
 			},
 		});
@@ -107,9 +103,32 @@
 			data: {
 				message_ids: selected,
 			},
-			success: function(response) {
-				var data = JSON.parse(response);
+			success: function(data) {
 				document.getElementById('new-message-count').innerHTML = data['message_count'];
+			},
+		});
+	}
+
+	function decryptMessage(message_id) {
+		$.ajax({
+			headers: { "X-CSRFToken": getCookie('csrftoken') },
+			type: 'POST',
+			url: '/inbox/decrypt',
+			data: {
+				message_id: message_id,
+			},
+			success: function(data) {
+				var body = document.getElementById(message_id+'_body')
+				var toggle = document.getElementById(message_id+'_toggle')
+				var encryptedMessage = body.innerHTML;
+				toggle.innerHTML = 'encrypt';
+				body.innerHTML = String(data['raw']).replace(/\n/g , "<br>");
+				toggle.onclick = function() {
+					toggle.innerHTML = 'decrypt';
+					toggle.onclick = function() { decryptMessage(message_id); };
+					body.innerHTML = encryptedMessage;
+				};
+
 			},
 		});
 	}
@@ -127,23 +146,32 @@
 	</div>
 </div> -->
 
-<br/><br/>
+<br/>
+
+<button type="button" class="btn btn-default" onclick="markMessagesAsRead()">Mark as read</button>
+<button type="button" class="btn btn-default" onclick="markMessagesAsUnread()">Mark as unread</button>
+<button type="button" class="btn btn-default" onclick="deleteMessages()"><span class="glyphicon glyphicon-trash"></span></button>
 
 <div class="list-group" id="message-list">
 {% for message in user.get_received_messages|dictsortreversed:'timestamp' %}
 	<a class="list-group-item{% if message.read %} read{% endif %}" style="display:table;" id="{{ message.id }}">
 		<span style="min-width: 22px; display: table-cell;">
 			<label>
-				<input type="checkbox" id="{{ message.id }}">
+				<input type="checkbox" id="{{ message.id }}"/>
 			</label>
 		</span>
 		<span class="name" style="min-width: 120px; display: table-cell;">{{ message.sender }}</span>
-		<span class="inline-block" style="display: table-cell; width: 100%;">{{ message.body|linebreaks }}</span>
+		<span class="inline-block" style="display: table-cell; padding-right:20px; width: 100%; word-wrap: break-word; {% if message.encrypted %}word-break: break-all;{% endif %}" id="{{ message.id }}_body">{{ message.body|linebreaks }}</span>
+		<span class="inline-block" style="display: table-cell;">
+		{% if message.encrypted %}
+			<button type="button" class="btn btn-link" onclick="decryptMessage({{ message.id }})" id="{{ message.id }}_toggle">decrypt</button>
+		{% endif %}
+		</span>
 		<span class="badge">
 			{% if message.sent_today %}
 				{{ message.timestamp|date:'g:i A' }}
 			{% else %}
-				{{ message.timestamp|date:'d/m/y' }}
+				{{ message.timestamp|date:'m/d/y' }}
 			{% endif %}
 		</span>
 	</a>
