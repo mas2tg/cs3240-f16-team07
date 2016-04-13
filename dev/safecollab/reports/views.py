@@ -1,6 +1,9 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from reports.models import Report, ReportForm
+import os
+
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 def index(request):
 	# Query the database for a list of ALL categories currently stored.
