@@ -20,25 +20,24 @@ def index(request):
 	return render(request, 'reports.html', context_dict)
 
 def add_report(request):
-    if request.method == 'POST':
-		form = ReportForm(request.POST, request.FILES)
+        if request.method == 'POST':
+                form = ReportForm(request.POST, request.FILES)
+                creator = request.user
+                name = request.POST.get('name')
+                description = request.POST.get('description')
+                path = request.FILES.get('path')
+                encrypted = True if request.POST.get('encrypted') else False
 
-		creator = request.user
-		name = request.POST.get('name')
-		description = request.POST.get('description')
-		path = request.FILES.get('path')
-		encrypted = True if request.POST.get('encrypted') else False
+                report = Report(creator_id=creator.id, encrypted=encrypted, name=name, description=description, path=path)
 
-		report = Report(creator_id=creator.id, encrypted=encrypted, name=name, description=description, path=path)
+                # Now we save the UserProfile model instance.
+                report.save()
 
-		# Now we save the UserProfile model instance.
-		report.save()
+                return HttpResponseRedirect('/reports')
 
-		return HttpResponseRedirect('/reports')
-
-	else:
-		# This should never happen
-		return HttpResponse('Improper arrival at add_report, see reports.views')
+        else:
+                # This should never happen
+                return HttpResponse('Improper arrival at add_report, see reports.views')
 
 
 
