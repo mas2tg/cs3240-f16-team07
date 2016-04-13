@@ -22,6 +22,10 @@ def home(request):
 		'form': ReportForm(),
 		})
 
+
+
+
+
 def groups(request):
 	if request.method == 'GET':
 		if 'name' in request.GET:
