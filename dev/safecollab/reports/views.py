@@ -8,7 +8,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 def index(request):
     username = request.user
-    category_list = Report.objects.filter(Q(private=False) | Q(name=username))
+    category_list = Report.objects.filter(Q(private=False) | Q(creator=username))
 
     # Query the database for a list of ALL categories currently stored.
     # Order the categories by no. likes in descending order.
