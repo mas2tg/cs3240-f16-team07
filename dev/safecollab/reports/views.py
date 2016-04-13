@@ -53,35 +53,17 @@ def add_report(request):
 
 def download(request,link_to_file):
       path = os.path.join(BASE_DIR, 'media')
-      path += "/attachments"
+      path =os.path.join(path,'attachments')
       filename=link_to_file
 
-#       response = HttpResponse(content_type='application/force-download')
-#       response['Content-Disposition'] = 'attachment; filename=%s' % smart_str(link_to_file)
-#       response['X-Sendfile'] = smart_str(path)
-# # It's usually a good idea to set the 'Content-Length' header too.
-# # You can also set any other required headers: Cache-Control, etc.
-#       return response
-
-      file_full_path = path+"/{0}".format(filename)
-
-      response = StreamingHttpResponse((line for line in open(file_full_path,'r')))
-      response['Content-Disposition'] = "attachment; filename={0}".format(filename)
-      response['Content-Length'] = os.path.getsize(file_full_path)
+      response = HttpResponse(content_type='application/force-download')
+      response['Content-Disposition'] = 'attachment; filename=%s' % smart_str(link_to_file)
+      response['X-Sendfile'] = smart_str(path)
+# It's usually a good idea to set the 'Content-Length' header too.
+# You can also set any other required headers: Cache-Control, etc.
       return response
 
 
 
 
-      # def file_iterator(file_name, chunk_size=512):
-      #   with open(file_name) as f:
-      #     while True:
-      #       c = f.read(chunk_size)
-      #       if c:
-      #         yield c
-      #       else:
-      #         break
-      # response = StreamingHttpResponse(file_iterator(filename))
-      # response['Content-Type'] = 'application/octet-stream'
-      # response['Content-Disposition'] = 'attachment;filename="{0}"'.format(filename)
-      # return response
+
