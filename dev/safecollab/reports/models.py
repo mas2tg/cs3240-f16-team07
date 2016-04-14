@@ -11,7 +11,7 @@ class Report(models.Model):
 	encrypted = models.BooleanField(default=False)
 	name = models.CharField(max_length=100)
 	description = models.CharField(max_length=50)
-	longDescription = models.CharField(max_length=1000)
+	longDescription = models.CharField(max_length=1000, default='')
 	private = models.BooleanField(default=False)
 	time = models.DateTimeField(default=datetime.now)
 

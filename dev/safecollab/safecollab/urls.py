@@ -15,10 +15,9 @@ urlpatterns = patterns('',
     url(r'^users/', include('users.urls')),
     url(r'^reports/', include('reports.urls')),
     url(r'^inbox/', include('inbox.urls')),
-    url(r'^index', views.index, name='index'),
-    url(r'^home', views.home, name='home'),
-    url(r'^groups', views.groups, name='groups'),
-
+    url(r'^index/', views.index, name='index'),
+    url(r'^home/', views.home, name='home'),
+    url(r'^groups/', views.groups, name='groups'),
     url(r'^$', views.index, name='index'),
 )
 
