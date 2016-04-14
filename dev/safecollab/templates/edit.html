@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block body_block %}
+    <h1>{{ test }}</h1>
+
+
+{% if reports %}
+
+            {% csrf_token %}
+
+          <form id="create_report" method="post" action="/reports/edit/{{ reports.name }}/">
+            {% csrf_token %}
+            File name: <input type="text" name="name" value="{{ reports.name }}" size="30" />
+            <br />
+             Short Description: <input type="text" name="description" value="{{ reports.description }}" size="30" /><br/>
+             Long Description: <input type="text" name="longDescription" value="{{ reports.longDescription }}" size="30" /><br/>
+             Upload:<input type="file" name="path" value="{{ reports.path }}" size="30"/><br/>
+             Private:<input type="checkbox" name="private" checked="{{ reports.private }}"/>
+             Encrypted:<input type="checkbox" name="encrypted" checked="{{ reports.encrypted }}"/><br/>
+              <input type="submit" name="submit" value="Upload Report" />
+        </form>
+
+    <br/>
+
+
+    {% else %}
+        There are no reports!
+
+    {% endif %}
+
+
+{% endblock %}

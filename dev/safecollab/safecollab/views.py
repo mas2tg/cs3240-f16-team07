@@ -24,6 +24,10 @@ def home(request):
         'available_backends': load_backends(settings.AUTHENTICATION_BACKENDS)
 		})
 
+
+
+
+
 def groups(request):
 	if request.method == 'GET':
 		if 'name' in request.GET:
