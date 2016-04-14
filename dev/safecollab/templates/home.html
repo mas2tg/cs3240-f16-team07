@@ -59,7 +59,39 @@
         <br/>
         {% endif %}
 
-        
+
+        <h2>Connect/disconnect social accounts</h2>
+        {% load backend_utils %}
+        <div class="social">
+            {% for sublist in available_backends|social_backends %}
+                <div class="row">
+                    {% for name, backend in sublist %}
+                        {% associated backend %}
+                        {% if association %}
+                            <form class="disconnect-form col-md-2" id="{{ name }}-disconnect" action="{% url 'social:disconnect_individual' backend=association.provider association_id=association.id %}" method="post">{% csrf_token %}
+                                <button class="btn btn-danger" name="{{ backend|backend_class }}" type="submit">
+                                    <i class="fa fa-{{ name|icon_name }}"></i>
+                                    Disconnect {{ backend|backend_name }}
+                                </button>
+                            </form>
+                        {% else %}
+                            {% if name == "google-plus" %}
+                            <div class="col-md-2 btn btn-default" id="{{ name }}-button" name="{{ backend|backend_class }}">
+                            <i class="fa fa-{{ name|icon_name }}"></i>
+                            {{ backend|backend_name }}
+                            </div>
+                            {% else %}
+                                <a class="col-md-2 btn btn-default" id="{{ name }}-button" name="{{ backend|backend_class }}" href="{% url 'social:begin' backend=name %}">
+                                <i class="fa fa-{{ name|icon_name }}"></i>
+                                {{ backend|backend_name }}
+                                </a>
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+
         <br/>
         <br/>
         <br/>

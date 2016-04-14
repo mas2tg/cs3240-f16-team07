@@ -3,6 +3,8 @@ from django.conf.urls import patterns, url
 from users import views
 
 urlpatterns = patterns('',
+	url(r'^register-social', views.register_social, name='register-social'),
+	url(r'^associate-social', views.associate_social, name='associate-social'),
 	url(r'^register', views.register, name='register'),
 	url(r'^login', views.user_login, name='login'),
 	url(r'^logout', views.user_logout, name='logout'),

@@ -7,6 +7,9 @@
         <title>SafeCollab</title>
     	<link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap.min.css' %}" />
     	<!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" /> -->
+		<link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css" rel="stylesheet">
+		<link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+		<link rel="stylesheet" type="text/css" href="{% static 'bootstrap-social-gh-pages/bootstrap-social.css' %}" />
 
     	<style>
 	    	html {
@@ -71,7 +74,8 @@
 
 				    <ul class="nav navbar-nav navbar-right">
 				    	{% if not user.is_authenticated %}
-				    	<li>
+
+						<li>
 				    		<form class="form-horizontal" role="form" method="post" action="/users/login">
 							    {% csrf_token %}
 							    <div class="control-group">
@@ -88,7 +92,7 @@
 					    <li>
 					    	<div class="navbar-text">
 					    		<img style="max-height: 20px; overflow: visible; padding-top: 0; padding-bottom: 0;" src="{{ user.user_profile.picture.url }}" />
-					    		Hello {{ user.username }}
+					    		{{ user.first_name }} {{ user.last_name }}
 					    	</div>
 					    </li>
 					    {% url 'inbox' as inbox_url %}

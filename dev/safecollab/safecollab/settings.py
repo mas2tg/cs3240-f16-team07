@@ -38,6 +38,8 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # 'django.contrib.sites',
+    'social.apps.django_app.default',
     'safecollab',
     'users',
     'reports',
@@ -57,6 +59,7 @@ MIDDLEWARE_CLASSES = (
 
 ROOT_URLCONF = 'safecollab.urls'
 LOGIN_URL = '/'
+LOGIN_REDIRECT_URL = '/home'
 
 WSGI_APPLICATION = 'safecollab.wsgi.application'
 
@@ -95,10 +98,24 @@ USE_L10N = True
 
 USE_TZ = True
 
+AUTHENTICATION_BACKENDS = (
+    'social.backends.facebook.FacebookOAuth2',
+    'social.backends.google.GoogleOAuth2',
+    'social.backends.twitter.TwitterOAuth',
+    'django.contrib.auth.backends.ModelBackend',
+)
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.auth.context_processors.auth',
     'django.core.context_processors.request',
+    'django.core.context_processors.debug',
+    'django.core.context_processors.i18n',
+    'django.core.context_processors.media',
+    'django.core.context_processors.static',
+    'django.core.context_processors.tz',
+    'django.contrib.messages.context_processors.messages',
+    'social.apps.django_app.context_processors.backends',
+    'social.apps.django_app.context_processors.login_redirect',
 )
 
 TEMPLATE_DIRS = (
@@ -121,3 +138,83 @@ STATICFILES_DIRS = (
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media') # Absolute path to the media directory
+
+SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
+
+SOCIAL_AUTH_FACEBOOK_SCOPE = ['email']
+SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {
+    'fields': 'id,first_name,last_name,email', 
+}
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_AUTH_EXTRA_ARGUMENTS = {
+    'access_type': 'online',
+    'approval_prompt': 'auto',
+}
+
+SOCIAL_AUTH_PIPELINE = (
+    # Get the information we can about the user and return it in a simple
+    # format to create the user instance later. On some cases the details are
+    # already part of the auth response from the provider, but sometimes this
+    # could hit a provider API.
+    'social.pipeline.social_auth.social_details',
+
+    # Get the social uid from whichever service we're authing thru. The uid is
+    # the unique identifier of the given user in the provider.
+    'social.pipeline.social_auth.social_uid',
+
+    # Verifies that the current auth process is valid within the current
+    # project, this is where emails and domains whitelists are applied (if
+    # defined).
+    'social.pipeline.social_auth.auth_allowed',
+
+    # Checks if the current social-account is already associated in the site.
+    'social.pipeline.social_auth.social_user',
+
+    # # Make up a username for this person, appends a random string at the end if
+    # # there's any collision.
+    # 'social.pipeline.user.get_username',
+
+    # # Send a validation email to the user to verify its email address.
+    # # Disabled by default.
+    # # 'social.pipeline.mail.mail_validation',
+
+    # # Associates the current social details with another user account with
+    # # a similar email address. Disabled by default.
+    # # 'social.pipeline.social_auth.associate_by_email',
+
+    # Create a user account if we haven't found one yet.
+    # 'social.pipeline.user.create_user',
+    'users.pipeline.get_additional_user_info',
+    'users.pipeline.create_user',
+
+    # Create the record that associated the social account with this user.
+    'social.pipeline.social_auth.associate_user',
+
+    # Populate the extra_data field in the social record with the values
+    # specified by settings (and the default ones like access_token, etc).
+    'social.pipeline.social_auth.load_extra_data',
+
+    # Update the user record with any changed info from the auth service.
+    'social.pipeline.user.user_details',
+)
+
+SOCIAL_AUTH_FACEBOOK_KEY = '1717485655201998'
+SOCIAL_AUTH_FACEBOOK_SECRET = 'a022503ae502a0b6e30569c17626481d'
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '337812304331-sn0h5i0corv70kaunh7dp5dfm41jr4aq.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'W_R4oR0HH9h-TtzTa43YCng2'
+SOCIAL_AUTH_TWITTER_KEY = 'qmEgGpPCX5FsAkzSIyv7aKZ2e'
+SOCIAL_AUTH_TWITTER_SECRET = 'XR3hSZ0NpA1MNlP2NOMNtlSxobupqWLR6ZIA2TdFm62QcPno0m'
+
+
+
+
+
+
+
+
+
+
+
+
+
+

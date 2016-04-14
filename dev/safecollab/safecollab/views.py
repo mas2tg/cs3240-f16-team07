@@ -4,13 +4,14 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group, Permission
 from users.models import UserForm, UserProfileForm
 from reports.models import Report, ReportForm
+from social.backends.utils import load_backends
+from django.conf import settings
 
 def index(request):
 	if request.user.is_authenticated():
 		return HttpResponseRedirect('/home')
 
 	context_dict = {
-		'boldmessage': "I am bold font from the context",
 		'user_form': UserForm(),
 		'profile_form': UserProfileForm(),
 	}
@@ -20,6 +21,7 @@ def index(request):
 def home(request):
 	return render(request, 'home.html', {
 		'form': ReportForm(),
+        'available_backends': load_backends(settings.AUTHENTICATION_BACKENDS)
 		})
 
 def groups(request):

@@ -9,6 +9,8 @@ urlpatterns = patterns('',
     # url(r'^$', 'safecollab.views.home', name='home'),
     # url(r'^blog/', include('blog.urls')),
 
+    url('', include('social.apps.django_app.urls', namespace='social')),
+
     url(r'^admin/', include(admin.site.urls)),
     url(r'^users/', include('users.urls')),
     url(r'^reports/', include('reports.urls')),

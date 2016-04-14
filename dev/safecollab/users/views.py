@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -16,10 +16,6 @@ def register(request):
 	if request.user:
 		if request.user.is_authenticated():
 			return HttpResponseRedirect('/home')
-
-	# A boolean value for telling the template whether the registration was successful.
-	# Set to False initially. Code changes value to True when registration succeeds.
-	registered = False
 
 	# If it's a HTTP POST, we're interested in processing form data.
 	if request.method == 'POST':
@@ -52,8 +48,6 @@ def register(request):
 			# Now we save the UserProfile model instance.
 			profile.save()
 
-			# Update our variable to tell the template registration was successful.
-			registered = True
 			return HttpResponseRedirect('/home')
 
 		# Invalid form or forms - mistakes or something else?
@@ -66,6 +60,86 @@ def register(request):
 	# Not a HTTP POST, this should never happen
 	else:
 		return HttpResponse('Error in register() see users.views')
+
+def register_social(request):
+	if request.method == 'POST':
+		# Attempt to grab information from the raw form information.
+		# Note that we make use of both UserForm and UserProfileForm.
+		user_form = UserForm(data=request.POST)
+		profile_form = UserProfileForm(data=request.POST)
+
+		# If the two forms are valid...
+		if user_form.is_valid() and profile_form.is_valid():
+			# Save the user's form data to the database.
+			user = user_form.save()
+
+			# Now we hash the password with the set_password method.
+			# Once hashed, we can update the user object.
+			user.set_password(user.password)
+			user.save()
+
+			# Now sort out the UserProfile instance.
+			# Since we need to set the user attribute ourselves, we set commit=False.
+			# This delays saving the model until we're ready to avoid integrity problems.
+			profile = profile_form.save(commit=False)
+			profile.user = user
+
+			# Did the user provide a profile picture?
+			# If so, we need to get it from the input form and put it in the UserProfile model.
+			if 'picture' in request.FILES:
+				 profile.picture = request.FILES['picture']
+
+			# Now we save the UserProfile model instance.
+			profile.save()
+
+			user.backend = 'django.contrib.auth.backends.ModelBackend'
+			login(request, user)
+
+			backend = request.session['partial_pipeline']['backend']
+			return redirect('social:complete', backend=backend)
+
+		# Invalid form or forms - mistakes or something else?
+		# Print problems to the terminal.
+		# They'll also be shown to the user.
+		else:
+			print(user_form.errors, profile_form.errors)
+			return HttpResponse('Errors with form')
+
+
+	else:
+		partial_user_data = request.session.get('partial_user_data')
+
+		context_dict = {
+			'user_form': UserForm(initial=partial_user_data),
+			'profile_form': UserProfileForm(),
+			'backend': request.session['partial_pipeline']['backend'],
+		}
+
+		request.session.pop('partial_user_data')
+
+		return render(request, 'register_social.html', context_dict)
+
+def associate_social(request):
+	if request.method == 'POST':
+		username = request.POST.get('username')
+		password = request.POST.get('password')
+
+		user = authenticate(username=username, password=password)
+
+		if user:
+			if user.is_active:
+				login(request, user)
+				backend = request.session['partial_pipeline']['backend']
+				return redirect('social:complete', backend=backend)
+			else:
+				# An inactive account was used...
+				return HttpResponse("Inactive account used. Social auth association failed.")
+		else:
+			# Bad login credentials.
+			return HttpResponse("Invalid login details supplied. Social auth association failed.")
+	else:
+		# This should not happen.
+		return HttpResponse('Error in associate_social() see users.views')
 
 def user_login(request):
 	# If the request is a HTTP POST, try to pull out the relevant information.
