@@ -185,7 +185,7 @@ def user_logout(request):
 	logout(request)
 
 	 # Take the user back to the homepage.
-	return HttpResponseRedirect('/index')
+	return HttpResponseRedirect('/')
 
 @login_required
 def new_site_manager(request):
