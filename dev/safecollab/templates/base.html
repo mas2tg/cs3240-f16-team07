@@ -8,7 +8,7 @@
     	<link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap.min.css' %}" />
     	<!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" /> -->
 		<link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css" rel="stylesheet">
-		<link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+		<link href="//netdna.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css" rel="stylesheet">
 		<link rel="stylesheet" type="text/css" href="{% static 'bootstrap-social-gh-pages/bootstrap-social.css' %}" />
 
     	<style>
@@ -16,10 +16,16 @@
 				position: relative;
 				min-height: 100%;
 			}
+        	/*{% load backend_utils %}*/
+        	/*url("{% random_background %}")*/
 			body {
 				/* Margin bottom by footer height */
 				margin-bottom: 45px;
-				background: #eeeeee;
+				background: url("/static/backgrounds/Blurred Backgrounds (1).jpg") no-repeat center center fixed; 
+			    -webkit-background-size: cover;
+			    -moz-background-size: cover;
+			    -o-background-size: cover;
+			    background-size: cover;
 			}
 			.footer {
 				position: absolute;
@@ -27,7 +33,6 @@
 				width: 100%;
 				/* Set the fixed height of the footer here */
 				height: 45px;
-				background-color: inherit;
 			}
     	</style>
 
@@ -87,6 +92,27 @@
 								</div>
 							</form>
 						</li>
+
+						<li>
+							<a><span class="text-muted"> or </span></a>
+						</li>
+						<li>
+							<form class="form-horizontal" role="form">
+								<div class="control-group">
+								    <div class="controls form-inline">
+							            <a class="btn btn-social-icon btn-facebook navbar-btn" href="{% url 'social:begin' 'facebook' %}?next={{ request.path }}">
+							                <span class="fa fa-facebook"></span>
+							            </a>
+							            <a class="btn btn-social-icon btn-google navbar-btn" href="{% url 'social:begin' 'google-oauth2' %}?next={{ request.path }}">
+							                <span class="fa fa-google"></span>
+							            </a>
+							            <a class="btn btn-social-icon btn-twitter navbar-btn" href="{% url 'social:begin' 'twitter' %}?next={{ request.path }}">
+							                <span class="fa fa-twitter"></span>
+							            </a>
+							        </div>
+					        	</div>
+					    	</form>
+					    </li>
 
 					    {% else %}
 					    <li>
