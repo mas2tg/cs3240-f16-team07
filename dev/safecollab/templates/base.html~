@@ -52,7 +52,7 @@
 				    	{% url 'reports' as reports_url %}
 				    	{% url 'groups' as groups_url %}
 				    	<li {% if request.path == home_url %}class="active"{% endif %}><a href="/home">Home</a></li>
-				    	<li {% if request.path == reports_url %}class="active"{% endif %}><a href="/reports/$/">Reports</a></li>
+				    	<li {% if request.path == reports_url %}class="active"{% endif %}><a href="/reports">Reports</a></li>
 				    	
 				    	{% if user.groups.all %} <!-- User has groups -->
 				    	<li class="dropdown{% if request.path == groups_url %} active{% endif %}">

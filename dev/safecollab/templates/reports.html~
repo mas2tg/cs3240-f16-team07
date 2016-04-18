@@ -1,8 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content_block %}
-<h1>{{ test }}</h1>
- 
+    <h1>{{ test }}</h1>
     <form method="GET" action="">
 
     <select name="type">
@@ -11,13 +10,11 @@
     </select>
     <input type="text" name="q" size="50" placeholder="What are you looking for?" value="{{ request.GET.q }}"/>
     <input type="submit" value="Search">
-    </form>
-   
-    <form  method="POST" action="/reports/add_folder">
-      {% csrf_token %}
+    <!--</form>
+    <form  method="GET" action="/reports/add_folder">
      <input type="text" name="folderName" size="50" placeholder="Create a new folder?"/>
     <input type="submit" value="Create New Folder">
-    </form>
+    </form>-->
 
     <br>
     <br>
@@ -36,26 +33,5 @@
         There are no reports!
     
     {% endif %}
-
-    {% if folders %}
-
-    <table border="1" style="width:100%">
-      <tr style="background-color:grey"><td>Folder Name</td></tr>
-      
-            {% for folder in folders %}
-            <tr><td><a href="/reports/{{ folder.name }}">{{ folder.name }}</a></td></tr>
-
-            {% endfor %}
-      </table>
-
-
-    {% else %}
-        There are no reports!
-    
-    {% endif %}
-
-    
-
-    
 
 {% endblock %}
