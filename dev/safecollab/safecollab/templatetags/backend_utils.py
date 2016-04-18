@@ -1,8 +1,16 @@
 import re
 
+import os
+
+import random
+
 from django import template
 
 from social.backends.oauth import OAuthAuth
+
+from django.contrib.staticfiles.templatetags.staticfiles import static
+from django.conf import settings
+from django.contrib.staticfiles import finders
 
 
 register = template.Library()
@@ -79,3 +87,30 @@ def associated(context, backend):
         except IndexError:
             pass
     return ''
+
+@register.simple_tag
+def random_background():
+    relevant_path = finders.find('backgrounds')
+    included_extenstions = ['jpg', 'bmp', 'png', 'gif']
+    file_names = [fn for fn in os.listdir(relevant_path) if any(fn.endswith(ext) for ext in included_extenstions)]
+    url = os.path.join(static('backgrounds')+'/', random.choice(file_names))
+    return url
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

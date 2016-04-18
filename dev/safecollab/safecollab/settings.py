@@ -40,6 +40,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     # 'django.contrib.sites',
     'social.apps.django_app.default',
+    'crispy_forms',
     'safecollab',
     'users',
     'reports',
@@ -194,8 +195,8 @@ SOCIAL_AUTH_PIPELINE = (
     # specified by settings (and the default ones like access_token, etc).
     'social.pipeline.social_auth.load_extra_data',
 
-    # Update the user record with any changed info from the auth service.
-    'social.pipeline.user.user_details',
+    # # Update the user record with any changed info from the auth service.
+    # 'social.pipeline.user.user_details',
 )
 
 SOCIAL_AUTH_FACEBOOK_KEY = '1717485655201998'
@@ -205,6 +206,9 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'W_R4oR0HH9h-TtzTa43YCng2'
 SOCIAL_AUTH_TWITTER_KEY = 'qmEgGpPCX5FsAkzSIyv7aKZ2e'
 SOCIAL_AUTH_TWITTER_SECRET = 'XR3hSZ0NpA1MNlP2NOMNtlSxobupqWLR6ZIA2TdFm62QcPno0m'
 
+
+    
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 
 
