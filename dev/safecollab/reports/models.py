@@ -23,7 +23,7 @@ class Report(models.Model):
     time = models.DateTimeField(default=datetime.now)
     path = models.FileField(storage=FileSystemStorage(location=settings.MEDIA_ROOT), upload_to='attachments',
                             default=None, null=True)
-    folder = models.ForeignKey(Folder, related_name='folder',null=True)
+    folder = models.ForeignKey(Folder, related_name='folder',null=True,blank=True)
 
 
 

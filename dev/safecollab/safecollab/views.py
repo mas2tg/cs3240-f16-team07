@@ -3,7 +3,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group, Permission
 from users.models import UserForm, UserProfileForm
-from reports.models import Report, ReportForm
+from reports.models import Report, ReportForm, Folder
 from social.backends.utils import load_backends
 from django.conf import settings
 
@@ -19,8 +19,11 @@ def index(request):
 
 @login_required
 def home(request):
+	obj_list = Folder.objects.filter(creator=request.user)
 	return render(request, 'home.html', {
+
 		'form': ReportForm(),
+		'folders': obj_list,
         'available_backends': load_backends(settings.AUTHENTICATION_BACKENDS)
 		})
 

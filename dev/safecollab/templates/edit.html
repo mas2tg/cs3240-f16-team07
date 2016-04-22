@@ -23,8 +23,16 @@ Owner of the File : {{reports.creator}}<br/>
               Private:<input type="checkbox" name="private"/>
 
               {% endif %}
+            {% if is_owner %}
+              Folder:  <select name="folder">
+             {% if folders %}
+             {% for folder in folders %}
+        <option value="{{ folder.name }}">{{  folder.name}}</option>
 
-
+                 {% endfor %}
+             {% endif %}
+            </select>
+            {% endif %}
                {% if reports.encrypted %}
 
              Encrypted:<input type="checkbox" name="encrypted" checked="{{ reports.encrypted }}"/><br/>

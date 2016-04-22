@@ -3,14 +3,20 @@ from django.shortcuts import render,get_object_or_404
 from reports.models import Report, ReportForm, Folder
 #from auth.models
 from django.db.models import Q
+from django.utils.encoding import smart_str
 import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 def index(request,folder_name):
+    username = request.user
     if(folder_name=='$'):
-        username = request.user
-        category_list = Report.objects.filter(Q(private=False) | Q(creator=username))
+        if(request.user.has_perm('users.site_manager')):
+            category_list = Report.objects.all()
+        else:
+            category_list = Report.objects.filter((Q(private=False) & ~Q(creator=username)) | (Q(creator=username) & Q(folder=None)) )
+
+
 
         # Query the database for a list of ALL categories currently stored.
         # Order the categories by no. likes in descending order.
@@ -55,6 +61,8 @@ def detail(request,file_name):
 
 def edit(request,file_name): #TODO: figure out how to include POST in request
     report=get_object_or_404(Report, name=file_name)
+    obj_list = Folder.objects.filter(creator=request.user)
+    is_owner = report.creator == request.user
     # form = ReportForm(request.POST, intance=report)
     if request.method== "POST":
         #report = report.save(commit=False)
@@ -64,10 +72,12 @@ def edit(request,file_name): #TODO: figure out how to include POST in request
         report.path = request.POST.get('path')
         report.private = True if request.POST.get('private') else False
         report.encrypted = True if request.POST.get('encrypted') else False
+        folder_obj = get_object_or_404(Folder, name=request.POST.get('folder'))
+        report.folder= folder_obj
         report.save()
         return HttpResponseRedirect('/reports/$/')
     else:
-        context_dict = {'reports':report}
+        context_dict = {'reports':report,'folders':obj_list,'is_owner':is_owner}
 
         return render(request, 'edit.html', context_dict)
 
@@ -112,15 +122,20 @@ def add_folder(request):
 
 
 def download(request,link_to_file):
-      path = os.path.join(BASE_DIR, 'media')
-      path += "/attachments"
-      filename=link_to_file
-
-      response = HttpResponse(content_type='application/force-download')
-      response['Content-Disposition'] = 'attachment; filename=%s' % smart_str(link_to_file)
-      response['X-Sendfile'] = smart_str(path)
-# It's usually a good idea to set the 'Content-Length' header too.
-# You can also set any other required headers: Cache-Control, etc.
-      return response
-
+#       path = os.path.join(BASE_DIR, 'media')
+#       path += "/attachments"
+#       filename=link_to_file
+#
+#       response = HttpResponse(content_type='application/force-download')
+#       response['Content-Disposition'] = 'attachment; filename=%s' % smart_str(link_to_file)
+#       response['X-Sendfile'] = smart_str(path)
+# # It's usually a good idea to set the 'Content-Length' header too.
+# # You can also set any other required headers: Cache-Control, etc.
+#       return response
+    response = HttpResponse(content_type='application/force-download') # mimetype is replaced by content_type for django 1.7
+    response['Content-Disposition'] = 'attachments; filename=%s' % smart_str(link_to_file)
+    response['X-Sendfile'] = smart_str(link_to_file)
+    # It's usually a good idea to set the 'Content-Length' header too.
+    # You can also set any other required headers: Cache-Control, etc.
+    return response
 
