@@ -6,5 +6,5 @@ urlpatterns = patterns('',
     url(r'^attachments/(?P<link_to_file>.*)/$', views.download,name='download'),
     url(r'^detail/(?P<file_name>.*)/$', views.detail, name='detail'),
     url(r'^edit/(?P<file_name>.*)/$$', views.edit, name='edit'), #TODO: include report name in link
-    url(r'^$', views.index, name='reports'),
+    url(r'^$', views.index, name='index'),
 )

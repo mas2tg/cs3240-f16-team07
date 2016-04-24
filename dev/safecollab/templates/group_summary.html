@@ -1,19 +1,69 @@
 {% extends 'base.html' %}
 
 {% block content_block %}
+
     
-    <h1>{{ group.name }}</h1> <br/>
-    Member(s): <br/>
-    {% for user in users %}
-        {{ user.username }} <br/>
-    {% endfor %}
-    <br/><br/>
-    <strong>Add members to group!</strong> <br/>
-    <form id="create_group_form" method="post" action="/users/add-user-to-group">
-        {% csrf_token %}
-        Username: <input type="text" name="username" value="" size="30" />
-        <input type="hidden" name="group_name" value="{{ group.name }}" />
-        <input type="submit" name="submit" value="submit" />
-    </form>
-    
+    {% if perms.users.site_manager or is_member %}
+
+    <div class="text-center {% if is_member %}col-md-offset-3{% endif %}" style="position: absolute; z-index: 1000; left: 0; right: 0;"> <h3 style="display: inline; margin-top: 0;">{{ group.name }}</h3> </div>
+    <a class="btn btn-primary btn-sm" id="leave-group-btn" href="{% url 'users:remove-user-from-group' group_id=group.id user_id=user.id %}" {% if not is_member %}style="visibility: hidden;"{% endif %}><span class="glyphicon glyphicon-remove"></span> Leave group</a> <br/> <br/>
+
+    <ul class="nav nav-pills nav-stacked col-md-3">
+    <li class="active"><a data-toggle="pill" href="#members">Members</a></li>
+    {% if perms.users.site_manager %}<li><a data-toggle="pill" href="#reports">Private reports</a></li>{% endif %}
+    </ul>
+
+    <div class="tab-content col-md-9">
+        <div id="members" class="tab-pane fade in active">
+
+            {% if group.user_set.all %} <!-- Group has users -->
+            <table data-toggle="table">
+                <thead>
+                    <tr>
+                        <th data-sortable="true">Username</th>
+                        <th data-sortable="true">Name</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody data-link="row" class="rowlink">
+                    {% for user in group.user_set.all|dictsort:'username' %}
+                    <tr>
+                        <td><a href="{% url 'users:view-profile' user_id=user.id %}"></a>{{ user.username }}</td>
+                        <td>{{ user.first_name }} {{ user.last_name }}</td>
+                        <td class="rowlink-skip"><a href="{% url 'users:remove-user-from-group' group_id=group.id user_id=user.id %}">Remove</a></td>
+                    </tr>
+                    {% endfor %}               
+                </tbody>
+            </table>
+
+            <br/>
+            
+            <form  class="form-horizontal" id="create_group_form" method="post" action="{% url 'users:add-user-to-group' %}">
+                {% csrf_token %}
+                <div class="controls form-inline">
+                    <input class="form-control" type="text" name="username" value="" placeholder="Username" />
+                    <button class="btn btn-default navbar-btn" type="submit" name="submit">Add member</button>
+                </div>
+                <input type="hidden" name="group_id" value="{{ group.id }}" />
+            </form>
+            {% else %}
+            There are no members in this group.
+            {% endif %}
+
+        </div>
+
+        {% if perms.users.site_manager %}
+        <div id="reports" class="tab-pane fade">
+            To be implemented...
+            Should link to or display private reports associated with this group. If there are not any, should report "There are private reports in this group."
+        </div>
+        {% endif %}
+    </div>
+
+    {% else %}
+
+    You are not authorized to view this group.
+
+    {% endif %}
+
 {% endblock %}

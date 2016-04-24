@@ -1,25 +1,5 @@
 {% extends 'base.html' %}
 
-{% block css_block %}
-    <style>
-        body {
-            /* Margin bottom by footer height */
-            margin-bottom: 45px;
-        }
-        .square-corners .btn-social {
-            -webkit-border-radius: 0 !important;
-            -moz-border-radius: 0 !important;
-            border-radius: 0 !important;
-            border:0px solid transparent; /* this was 1px earlier */
-        }
-        .cool-panel {
-            background: #444;
-            background: rgba(0, 0, 0, 0.35);
-            color:white;
-        }
-    </style>
-{% endblock %}
-
 {% block body_block %}
 
     <div class="col-md-5">
@@ -43,13 +23,52 @@
 
             {% csrf_token %}
 
-            {% load crispy_forms_tags %}
-            {% crispy user_form %}
-            {% crispy profile_form %}
+            {% with form=user_form %}
+                {% if form.non_field_errors %}
+                    <ul>
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                {% for field in form %}
+                    <div class="form-group" id="{{ field.auto_id }}_container">
+                        {{ field.help_text }}
+                        <div>
+                            {{ field.label_tag }} {{ field }}
+                        </div>
+                        <div id="{{ field.auto_id }}_errors">
+                            {{ field.errors }}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endwith %}
+
+            {% with form=profile_form %}
+                {% if form.non_field_errors %}
+                    <ul>
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                {% for field in form %}
+                    <div class="form-group" id="{{ field.auto_id }}_container">
+                        {{ field.help_text }}
+                        <div>
+                            {{ field.label_tag }} {{ field }}
+                        </div>
+                        <div id="{{ field.auto_id }}_errors">
+                            {{ field.errors }}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endwith %}
 
             <!-- Provide a button to click to submit the form. -->
-            <input class="btn btn-default" type="submit" name="submit" value="Submit" />
-            <br/><br/>
+            <div class="form-group">
+                <input class="btn btn-default" type="submit" name="submit" value="Submit" />
+            </div>
 
             <div class="row">
                 <a class="btn btn-block btn-social btn-facebook" href="{% url 'social:begin' 'facebook' %}?next={{ request.path }}">

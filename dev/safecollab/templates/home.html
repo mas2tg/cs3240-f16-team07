@@ -4,13 +4,13 @@
 
 
         <strong>Add a Report!</strong> 
-        <form id="report_form" enctype="multipart/form-data"  method="post" action="/reports/add-report">
+        <form id="report_form" enctype="multipart/form-data"  method="post" action="{% url 'reports:add-report' %}">
 
             {% csrf_token %}
 
 
 
-         <form id="create_report" method="post" action="/reports/add-report">
+         <form id="create_report" method="post" action="{% url 'reports:add-report' %}">
             {% csrf_token %}
             File name: <input type="text" name="name" value="" size="30" />
             <br />
@@ -24,82 +24,5 @@
         <br></br>
 
 
-        <strong>Create a new group!</strong> <br/>
-        <form id="create_group_form" method="post" action="/users/create-group">
-            {% csrf_token %}
-            Group name: <input type="text" name="group_name" value="" size="30" />
-            <br />
-            
-            <input type="submit" name="submit" value="submit" />
-        </form>
-        <br/>
-
-        {% if perms.users.site_manager %}
-        <strong>Grant SM privileges to another user!</strong> <br/>
-        <form id="new-site-manager" method="post" action="/users/new-site-manager">
-            {% csrf_token %}
-            Username: <input type="text" name="username" value="" size="30" /> <br />
-            <input type="submit" name="submit" value="submit" />
-        </form>
-        <br/>
-        
-        <strong>Suspend a user account.</strong> <br/>
-        <form id="suspend-user" method="post" action="/users/suspend-user">
-            {% csrf_token %}
-            Username: <input type="text" name="username" value="" size="30" /> <br />
-            <input type="submit" name="submit" value="submit" />
-        </form>
-        <br/>
-
-        <strong>Restore a user account.</strong> <br/>
-        <form id="restore-user" method="post" action="/users/restore-user/">
-            {% csrf_token %}
-            Username: <input type="text" name="username" value="" size="30" /> <br />
-            <input type="submit" name="submit" value="submit" />
-        </form>
-        <br/>
-        {% endif %}
-
-
-        <h2>Connect/disconnect social accounts</h2>
-        {% load backend_utils %}
-        <div class="social">
-            {% for sublist in available_backends|social_backends %}
-                <div class="row">
-                    {% for name, backend in sublist %}
-                        {% associated backend %}
-                        {% if association %}
-                            <form class="disconnect-form col-md-2" id="{{ name }}-disconnect" action="{% url 'social:disconnect_individual' backend=association.provider association_id=association.id %}" method="post">{% csrf_token %}
-                                <button class="btn btn-danger" name="{{ backend|backend_class }}" type="submit">
-                                    <i class="fa fa-{{ name|icon_name }}"></i>
-                                    Disconnect {{ backend|backend_name }}
-                                </button>
-                            </form>
-                        {% else %}
-                            {% if name == "google-plus" %}
-                            <div class="col-md-2 btn btn-default" id="{{ name }}-button" name="{{ backend|backend_class }}">
-                            <i class="fa fa-{{ name|icon_name }}"></i>
-                            {{ backend|backend_name }}
-                            </div>
-                            {% else %}
-                                <a class="col-md-2 btn btn-default" id="{{ name }}-button" name="{{ backend|backend_class }}" href="{% url 'social:begin' backend=name %}">
-                                <i class="fa fa-{{ name|icon_name }}"></i>
-                                {{ backend|backend_name }}
-                                </a>
-                            {% endif %}
-                        {% endif %}
-                    {% endfor %}
-                </div>
-            {% endfor %}
-        </div>
-
-        <br/>
-        <br/>
-        <br/>
-        <br/>
-        <br/>
-        <br/>
-        <br/>
-        <br/>
 
 {% endblock %}

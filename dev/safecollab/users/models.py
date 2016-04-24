@@ -36,13 +36,21 @@ class UserProfile(models.Model):
 		)
 
 class UserForm(forms.ModelForm):
-	password = forms.CharField(widget=forms.PasswordInput())
+	username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}))
+	password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+	first_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}))
+	last_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}))
+	email = forms.CharField(widget=forms.EmailInput(attrs={'class': 'form-control'}))
 	
 	class Meta:
 		model = User
 		fields = ('username', 'password', 'first_name', 'last_name', 'email')
 
 class UserProfileForm(forms.ModelForm):
-    class Meta:
-        model = UserProfile
-        fields = ('website', 'picture')
+	website = forms.EmailField(widget=forms.URLInput(attrs={'class': 'form-control'}))
+	# Must explicitly say that field is not required in order for ClearableFileInput to render with clear checkbox
+	picture = forms.ImageField(required=False, widget=forms.ClearableFileInput(attrs={}))
+
+	class Meta:
+		model = UserProfile
+		fields = ('website', 'picture')

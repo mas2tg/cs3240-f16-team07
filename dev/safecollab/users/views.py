@@ -4,6 +4,9 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group, Permission
 from users.models import UserForm, UserProfile, UserProfileForm
+from django.forms.models import model_to_dict
+from social.backends.utils import load_backends
+from django.conf import settings
 
 ###############################
 #####                     #####
@@ -188,49 +191,63 @@ def user_logout(request):
 	return HttpResponseRedirect('/')
 
 @login_required
-def new_site_manager(request):
-	if request.method == 'POST':
-		if request.user.has_perm('users.site_manager'):
-			username = request.POST.get('username')
-			user = User.objects.get(username=username)
-			permission = Permission.objects.get(codename='site_manager')
-			if user.has_perm(permission):
-				return HttpResponse('User %s is already a site manager'%(username))
-			user.user_permissions.add(permission)
-			return HttpResponse('User %s is now a site manager'%(username))
-
-	return HttpResponse('Inappropriate arrival at /new-site-manager/')
-
-@login_required
-def suspend_user(request):
-	if request.method == 'POST' and request.user.has_perm('users.site_manager'):
-		username = request.POST.get('username')
-		user = User.objects.get(username=username)
-		if user:
-			if user.is_active:
-				user.is_active = False
-				# Update user object in database
-				user.save()
-				return HttpResponse('User %s is now suspended'%(username))
-			return HttpResponse('User %s is already suspended'%(username))
-		else:
-			return HttpResponse('User %s does not exist'%(username))
-
-	return HttpResponse('Inappropriate arrival at /suspend-user/')
+def grant_sm(request, user_id):
+	# try to find user
+	query_set = User.objects.filter(id=int(user_id))
+	if query_set.exists():
+		user = query_set[0]
+		permission = Permission.objects.get(codename='site_manager')
+		if permission in user.user_permissions.all():
+			return HttpResponse('User %s is already a site manager'%(user.username))
+		user.user_permissions.add(permission)
+		return HttpResponseRedirect('/users/'+str(user_id)+'/')
+	else:
+		return HttpResponse('User not found.')
 
 @login_required
-def restore_user(request):
-	if request.method == 'POST' and request.user.has_perm('users.site_manager'):
-		username = request.POST.get('username')
-		user = User.objects.get(username=username)
+def revoke_sm(request, user_id):
+	# try to find user
+	query_set = User.objects.filter(id=int(user_id))
+	if query_set.exists():
+		user = query_set[0]
+		permission = Permission.objects.get(codename='site_manager')
+		if not permission in user.user_permissions.all():
+			return HttpResponse('User %s is already not a site manager'%(user.username))
+		user.user_permissions.remove(permission)
+		return HttpResponseRedirect('/users/'+str(user_id)+'/')
+	else:
+		return HttpResponse('User not found.')
+
+@login_required
+def suspend_user(request, user_id):
+	# try to find user
+	query_set = User.objects.filter(id=int(user_id))
+	if query_set.exists():
+		user = query_set[0]
+		if user.is_active:
+			user.is_active = False
+			# Update user object in database
+			user.save()
+		return HttpResponseRedirect('/users/'+str(user_id)+'/')
+		return HttpResponse('User %s is already suspended'%(user.username))
+	else:
+		return HttpResponse('User not found.')
+
+@login_required
+def restore_user(request, user_id):
+	# try to find user
+	query_set = User.objects.filter(id=int(user_id))
+	if query_set.exists():
+		user = query_set[0]
 		if not user.is_active:
 			user.is_active = True
 			# Update user object in database
 			user.save()
-			return HttpResponse('User %s is now active'%(username))
-		return HttpResponse('User %s is already active'%(username))
+		return HttpResponseRedirect('/users/'+str(user_id)+'/')
+		return HttpResponse('User %s is already active'%(user.username))
+	else:
+		return HttpResponse('User not found.')
 
-	return HttpResponse('Inappropriate arrival at /suspend-user/')
 
 
 ###############################
@@ -255,24 +272,139 @@ def create_group(request):
 		new_group, created = Group.objects.get_or_create(name=group_name)
 		if not created:
 			# Group already exists under that name
-			return HttpResponse('Group under name "' + group_name + '" already exists. Click <a href="/groups?name=' + group_name + '">here</a> for group summary.')
+			return HttpResponse('Group under name "' + group_name + '" already exists. Click <a href="/groups?id=' + new_group.id + '">here</a> for group summary.')
 
 		current_user.groups.add(new_group)
 		
-		return HttpResponseRedirect('/groups?name='+str(new_group.name))
+		return HttpResponseRedirect('/groups/'+str(new_group.id)+'/')
 	return HttpResponse('Inappropriate arrival at /create-group/')
 
 def add_user_to_group(request):
 	if request.method == 'POST':
 		username = request.POST.get('username')
-		group_name = request.POST.get('group_name')
+		group_id = request.POST.get('group_id')
 		
-		group = Group.objects.get(name=group_name)
-		user = User.objects.get(username=username)
-		# TODO: add check for whether group/user exists
+		group = Group.objects.get(id=int(group_id))
 
-		user.groups.add(group)
+		# check if current user has permission to add users to group
+		if request.user.has_perm('users.site_manager') or request.user.groups.filter(id=int(group_id)).exists():
+			user = User.objects.get(username=username)
+			# TODO: add check for whether group/user exists
 
-		return HttpResponseRedirect('/groups?name='+group_name)
+			user.groups.add(group)
+
+			return HttpResponseRedirect('/groups/' + group_id + '/')
+		else:
+			return HttpResponse('You do not have permission to add users to this group.')
 
 	return HttpResponse('Inappropriate arrival at /add-user-to-group/')
+
+def remove_user_from_group(request, group_id, user_id):
+	# try to find user
+	query_set = User.objects.filter(id=int(user_id))
+	if query_set.exists():
+		user = query_set[0]
+		# try to find group
+		query_set = user.groups.filter(id=int(group_id))
+		if query_set.exists():
+			group = query_set[0]
+			# remove user from group
+			group.user_set.remove(user)
+			# delete group if empty
+			if not group.user_set.all().exists():
+				group.delete()
+			# removed by user
+			if user_id == request.user.id:
+				return HttpResponseRedirect('/groups/')
+			# removed by SM
+			else:
+				return HttpResponseRedirect('/groups/'+str(group_id)+'/')
+		else:
+			return HttpResponse('Group not found.')
+	else:
+		return HttpResponse('User not found.')
+
+
+###############################
+#####                     #####
+#####       Settings      #####
+#####                     #####
+###############################
+
+@login_required
+def view_profile(request, user_id, **kwargs):
+	query_set = User.objects.filter(id=user_id)
+	if not query_set.exists():
+		return HttpResponse('User with user_id='+user_id+' could not be found')
+	user = query_set[0]
+
+	profile = None
+	query_set = UserProfile.objects.filter(user=user)
+	if not query_set.exists():
+		profile = UserProfile()
+		profile.user = user
+		profile.save()
+	else:
+		profile = query_set[0]
+
+	context_dict = {}
+
+	if user_id == str(request.user.id):
+		context_dict = {
+			'user_form': UserForm(initial=model_to_dict(user)),
+			'profile_form': UserProfileForm(initial=model_to_dict(profile)),
+			'available_backends': load_backends(settings.AUTHENTICATION_BACKENDS),
+			'editing': 'editing' in kwargs and kwargs['editing'] == 'editing',
+		}
+	context_dict['disp_user'] = user
+	context_dict['disp_user_is_sm'] = (user.is_superuser) or (Permission.objects.get(codename='site_manager') in user.user_permissions.all()) #user.has_perm('users.site_manager')
+
+	print(model_to_dict(profile))
+	print(UserProfileForm(initial=model_to_dict(profile)))
+
+	return render(request, 'profile.html', context_dict)
+
+def edit_profile(request):
+	# If it's a HTTP POST, we're interested in processing form data.
+	if request.method == 'POST':
+		# Attempt to grab information from the raw form information.
+		# Note that we make use of both UserForm and UserProfileForm.
+
+		user = request.user
+		profile = None
+		query_set = UserProfile.objects.filter(user=user)
+		if not query_set.exists():
+			profile = UserProfile()
+			profile.user = user
+			profile.save()
+		else:
+			profile = query_set[0]
+
+		print(request.POST)
+
+		if 'username' in request.POST and request.POST.get('username'):
+			user.username = request.POST.get('username')
+		if 'password' in request.POST and request.POST.get('password'):
+			user.set_password(request.POST.get('password'))
+		if 'first_name' in request.POST and request.POST.get('first_name'):
+			user.first_name = request.POST.get('first_name')
+		if 'last_name' in request.POST and request.POST.get('last_name'):
+			user.last_name = request.POST.get('last_name')
+		if 'email' in request.POST and request.POST.get('email'):
+			user.email = request.POST.get('email')
+		user.save()
+
+		if 'picture-clear' in request.POST:
+			profile.picture.delete(save=False)
+		elif 'picture' in request.FILES:
+			profile.picture = request.FILES['picture']
+		if 'website' in request.POST and request.POST.get('website'):
+			profile.website = request.POST.get('website')
+		profile.save()
+		
+		return HttpResponseRedirect('/users/'+str(user.id))
+
+	# Not a HTTP POST, this should never happen
+	else:
+		return HttpResponse('Error in edit_profile() see users.views')
+	

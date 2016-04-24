@@ -2,10 +2,9 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group, Permission
-from users.models import UserForm, UserProfileForm
+from users.models import UserProfile, UserForm, UserProfileForm
 from reports.models import Report, ReportForm
-from social.backends.utils import load_backends
-from django.conf import settings
+from django.db.models import Q
 
 def index(request):
 	if request.user.is_authenticated():
@@ -21,27 +20,27 @@ def index(request):
 def home(request):
 	return render(request, 'home.html', {
 		'form': ReportForm(),
-        'available_backends': load_backends(settings.AUTHENTICATION_BACKENDS)
 		})
 
-
-
-
-
 def groups(request):
-	if request.method == 'GET':
-		if 'name' in request.GET:
-			group_name = request.GET.get('name')
-			group = Group.objects.get(name=group_name)
-			users = group.user_set.all()
+	group_ids = set([ group.id for group in request.user.groups.all() ])
+	context_dict = {
+		'other_groups': Group.objects.filter(~Q(id__in=group_ids)),
+	}
+	return render(request, 'groups.html', context_dict)
 
-			context_dict = {
-				'group': group,
-				'users': users,
-			}
+def group_summary(request, group_id):
+	query_set = Group.objects.filter(id=int(group_id))
+	if query_set.exists():
+		group = query_set[0]
+		users = group.user_set.all()
 
-			return render(request, 'group_summary.html', context_dict)
-		else:
-			return render(request, 'groups.html')
-	# Change the following line to a general groups page later on.
-	return HttpResponse('Inappropriate arrival at /group')
+		context_dict = {
+			'group': group,
+			'users': users,
+			'is_member': request.user.groups.filter(id=int(group_id)).exists(),
+		}
+		
+		return render(request, 'group_summary.html', context_dict)
+	else:
+		return HttpResponseRedirect('/groups')
