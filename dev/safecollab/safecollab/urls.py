@@ -12,11 +12,14 @@ urlpatterns = patterns('',
     url('', include('social.apps.django_app.urls', namespace='social')),
 
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^users/', include('users.urls')),
-    url(r'^reports/', include('reports.urls')),
-    url(r'^inbox/', include('inbox.urls')),
+    url(r'^users/', include('users.urls', namespace='users')),
+    url(r'^reports/', include('reports.urls', namespace='reports')),
+    url(r'^inbox/', include('inbox.urls', namespace='inbox')),
+    url(r'^groups/', include(patterns('',
+            url(r'^(?P<group_id>\d+)/', views.group_summary, name='group-summary'),
+            url(r'^$', views.groups, name='groups'),
+        ))),
     url(r'^home/', views.home, name='home'),
-    url(r'^groups/', views.groups, name='groups'),
     url(r'^$', views.index, name='index'),
 )
 

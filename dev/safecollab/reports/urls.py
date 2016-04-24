@@ -9,5 +9,5 @@ urlpatterns = patterns('',
     url(r'^edit/(?P<file_name>.*)/$$', views.edit, name='edit'), #TODO: include report name in link
     url(r'^delete/(?P<file_name>.*)/$$', views.delete, name='delete'), #TODO: include report name in link
     url(r'^(?P<folder_name>.*)/$$', views.index, name='reports'),
-    #url(r'^$', views.index, name='index'),
+    url(r'^$', views.index, name='index'),
 )
