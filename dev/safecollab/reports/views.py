@@ -8,7 +8,7 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-def index(request,folder_name):
+def index(request, folder_name='$'):
     username = request.user
     if(folder_name=='$'):
         if(request.user.has_perm('users.site_manager')):
