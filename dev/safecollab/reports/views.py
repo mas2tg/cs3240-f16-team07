@@ -5,7 +5,7 @@ from reports.models import Report, ReportForm, Folder
 from django.db.models import Q
 from django.utils.encoding import smart_str
 import os
-
+import re
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 def index(request,folder_name):
@@ -27,10 +27,35 @@ def index(request,folder_name):
         query = request.GET.get("q")
         if(query):
             if (queryType=="name"):
+                search = query.split(" ")
+                if "and" in search:
+                    x=search.index('and')
+                    category_list=category_list.filter(Q(name__icontains=search[x-1]))
+                    category_list=category_list.filter(Q(name__icontains=search[x+1]))
+                elif "or" in search:
+                    x=search.index('or')
+                    category_list=category_list.filter(Q(name__icontains=search[x-1])| Q(name__icontains=search[x+1]))
+                elif "not" in search:
+                    x=search.index('not')
+                    category_list=category_list.filter(~Q(name__icontains=search[x+1]))
 
-                category_list = category_list.filter(Q(name__icontains=query))
+                else:
+                    category_list = category_list.filter(Q(name__icontains=query))
             elif (queryType=="description"):
-                category_list = category_list.filter(Q(description__icontains=query))
+                search = query.split(" ")
+                if "and" in search:
+                    x=search.index('and')
+                    category_list=category_list.filter(Q(description__icontains=search[x-1]))
+                    category_list=category_list.filter(Q(description__icontains=search[x+1]))
+                elif "or" in search:
+                    x=search.index('or')
+                    category_list=category_list.filter(Q(description__icontains=search[x-1])| Q(description__icontains=search[x+1]))
+                elif "not" in search:
+                    x=search.index('not')
+                    category_list=category_list.filter(~Q(description__icontains=search[x+1]))
+
+                else:
+                    category_list = category_list.filter(Q(description__icontains=query))
 
 
         folder_list = Folder.objects.all();
