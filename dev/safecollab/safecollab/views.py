@@ -3,7 +3,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group, Permission
 from users.models import UserProfile, UserForm, UserProfileForm
-from reports.models import Report, ReportForm
+from reports.models import Report, ReportForm, Folder
 from django.db.models import Q
 
 def index(request):
@@ -18,8 +18,10 @@ def index(request):
 
 @login_required
 def home(request):
+	obj_list = Folder.objects.filter(creator=request.user)
 	return render(request, 'home.html', {
 		'form': ReportForm(),
+		'folders': obj_list,
 		})
 
 def groups(request):
