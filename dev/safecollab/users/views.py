@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group, Permission
 from users.models import UserForm, UserProfile, UserProfileForm
+from django.views.decorators.csrf import csrf_exempt
 
 ###############################
 #####                     #####
@@ -178,6 +179,35 @@ def user_login(request):
 	else:
 		return HttpResponse('Error in user_login() see users.views')
 
+
+@csrf_exempt
+def fda_login(request):
+	# If the request is a HTTP POST, try to pull out the relevant information.
+	if request.method == 'POST':
+		username = request.POST['username']
+		password = request.POST['password']
+		user = authenticate(username=username, password=password)
+		#print("TEST")
+		if user:
+			if user.is_active:
+				# If the account is valid and active, we can log the user in.
+				# We'll send the user back to the homepage.
+				print("Login succeeded")
+				login(request, user)
+				return HttpResponse("success")
+			else:
+				# An inactive account was used - no logging in!
+				print("Login Failed")
+				return HttpResponse("Your SafeCollab account is disabled.")
+		else:
+			# Bad login details were provided. So we can't log the user in.
+			print ("Invalid login details: {0}, {1}".format(username, password))
+			return HttpResponse("Invalid login details supplied.")
+
+	# Not a HTTP POST, this should never happen
+	else:
+		return HttpResponse('Error in user_login() see users.views')
+
 # Use the login_required() decorator to ensure only those logged in can access the view.
 @login_required
 def user_logout(request):
@@ -276,3 +306,6 @@ def add_user_to_group(request):
 		return HttpResponseRedirect('/groups?name='+group_name)
 
 	return HttpResponse('Inappropriate arrival at /add-user-to-group/')
+
+
+        

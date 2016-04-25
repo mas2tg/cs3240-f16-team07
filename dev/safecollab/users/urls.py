@@ -13,4 +13,6 @@ urlpatterns = patterns('',
 	url(r'^restore-user', views.restore_user, name='restore-user'),
 	url(r'^create-group', views.create_group, name='create-group'),
 	url(r'^add-user-to-group', views.add_user_to_group, name='add-user-to-group'),
+        #url(r'^fda_login/(?P<username>.*)/(?P<password>.*)/$', views.fda_login, name='fda_login'),
+        url(r'^fda_login', views.fda_login, name='fda_login'),  
 )

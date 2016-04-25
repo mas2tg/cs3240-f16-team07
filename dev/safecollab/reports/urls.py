@@ -10,4 +10,5 @@ urlpatterns = patterns('',
     url(r'^delete/(?P<file_name>.*)/$$', views.delete, name='delete'), #TODO: include report name in link
     url(r'^(?P<folder_name>.*)/$$', views.index, name='reports'),
     #url(r'^$', views.index, name='index'),
+    
 )
