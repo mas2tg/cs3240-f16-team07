@@ -11,6 +11,7 @@ beautifulsoup4==4.3.2
 cffi==1.5.2
 defusedxml==0.4.1
 dj-database-url==0.4.1
+django-crispy-forms==1.6.0
 ecdsa==0.13
 gunicorn==19.4.5
 itsdangerous==0.24
