@@ -40,7 +40,6 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     # 'django.contrib.sites',
     'social.apps.django_app.default',
-    'crispy_forms',
     'safecollab',
     'users',
     'reports',
