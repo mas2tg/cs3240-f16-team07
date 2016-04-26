@@ -5,6 +5,8 @@ from django.contrib.auth.models import User, Group, Permission
 from users.models import UserProfile, UserForm, UserProfileForm
 from reports.models import Report, ReportForm, Folder
 from django.db.models import Q
+from django.conf import settings
+from django.core import serializers
 
 def index(request):
 	if request.user.is_authenticated():

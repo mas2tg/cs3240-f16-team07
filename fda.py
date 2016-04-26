@@ -11,8 +11,9 @@ def list_reports(user, password):
     r2 = requests.get('http://127.0.0.1:8000/fda_index/', params={'username':user}) #Must NOT provide the username here but get it from request
     data = json.loads(r2.text)#may not be necessary
     #print(data)
-    if data == '':
+    if data == []:
         print("There are no reports for you.")
+        return None
         
     i = 0
     for f in data:
