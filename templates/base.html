@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+
+<html>
+	{% load staticfiles %}
+	
+	<head>
+        <title>SafeCollab</title>
+    	<link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap.min.css' %}" />
+		<link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap-theme.min.css' %}">
+		<link rel="stylesheet" type="text/css" href="{% static 'font-awesome-4.6.1/css/font-awesome.min.css' %}">
+		<link rel="stylesheet" type="text/css" href="{% static 'bootstrap-social-gh-pages/bootstrap-social.css' %}" />
+		<link rel="stylesheet" type="text/css" href="{% static 'bootstrap-table/bootstrap-table.css' %}" />
+		<link rel="stylesheet" type="text/css" href="{% static 'jasny-bootstrap/jasny-bootstrap.min.css' %}" />
+
+		<!-- favicon created using www.favicon-generator.com -->
+		<link rel="apple-touch-icon" sizes="57x57" href="{% static 'favicon/apple-icon-57x57.png' %}">
+		<link rel="apple-touch-icon" sizes="60x60" href="{% static 'favicon/apple-icon-60x60.png' %}">
+		<link rel="apple-touch-icon" sizes="72x72" href="{% static 'favicon/apple-icon-72x72.png' %}">
+		<link rel="apple-touch-icon" sizes="76x76" href="{% static 'favicon/apple-icon-76x76.png' %}">
+		<link rel="apple-touch-icon" sizes="114x114" href="{% static 'favicon/apple-icon-114x114.png' %}">
+		<link rel="apple-touch-icon" sizes="120x120" href="{% static 'favicon/apple-icon-120x120.png' %}">
+		<link rel="apple-touch-icon" sizes="144x144" href="{% static 'favicon/apple-icon-144x144.png' %}">
+		<link rel="apple-touch-icon" sizes="152x152" href="{% static 'favicon/apple-icon-152x152.png' %}">
+		<link rel="apple-touch-icon" sizes="180x180" href="{% static 'favicon/apple-icon-180x180.png' %}">
+		<link rel="icon" type="image/png" sizes="192x192"  href="{% static 'favicon/android-icon-192x192.png' %}">
+		<link rel="icon" type="image/png" sizes="32x32" href="{% static 'favicon/favicon-32x32.png' %}">
+		<link rel="icon" type="image/png" sizes="96x96" href="{% static 'favicon/favicon-96x96.png' %}">
+		<link rel="icon" type="image/png" sizes="16x16" href="{% static 'favicon/favicon-16x16.png' %}">
+		<link rel="manifest" href="{% static 'favicon/manifest.json' %}">
+		<meta name="msapplication-TileColor" content="#ffffff">
+		<meta name="msapplication-TileImage" content="{% static 'favicon/ms-icon-144x144.png' %}">
+		<meta name="theme-color" content="#ffffff">
+
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+		<script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+		<script src="{% static 'bootstrap-table/bootstrap-table.js' %}"></script>
+		<script src="{% static 'jasny-bootstrap/rowlink.js' %}"></script>
+
+    	<style>
+	    	html {
+				position: relative;
+				min-height: 100%;
+			}
+        	/*{% load backend_utils %}*/
+        	/*url("{% random_background %}")*/
+			body {
+				/* Margin bottom by footer height */
+				margin-bottom: 50px;
+				background: url("/static/backgrounds/Blurred Backgrounds (1).jpg") no-repeat center center fixed; 
+			    -webkit-background-size: cover;
+			    -moz-background-size: cover;
+			    -o-background-size: cover;
+			    background-size: cover;
+			}
+			.navbar {
+				/* removes line appearing under navbar */
+				border: 0;
+			}
+			.footer {
+				position: absolute;
+				bottom: 0;
+				width: 100%;
+				/* Set the fixed height of the footer here */
+				height: 45px;
+			}
+			.navbar .dropdown:hover .dropdown-menu {
+				display: block;
+			}
+	        .navbar-prof-pic-container {
+				background: #000;
+				color: #fff;
+				width: 28px;
+				height: 28px;
+				overflow: hidden;
+				padding-top: 0;
+				padding-bottom: 0;
+				margin: 0;
+				margin-top: -4px;
+				margin-right: 6px;
+				display: -webkit-box;
+				display: -moz-box;
+				display: -ms-flexbox;
+				display: -webkit-flex;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
+			.navbar-prof-pic {
+				padding-top: 0;
+				padding-bottom: 0;
+				max-width: 28px;
+				max-height: 28px;
+			}
+	        .panel-body {
+	        	position: relative;
+	        }
+	        .square-corners .btn-social {
+	            -webkit-border-radius: 0 !important;
+	            -moz-border-radius: 0 !important;
+	            border-radius: 0 !important;
+	            border:0px solid transparent; /* this was 1px earlier */
+	        }
+	        .cool-panel {
+	            background: #444;
+	            background: rgba(0, 0, 0, 0.35);
+	            color:white;
+	        }
+
+    	</style>
+
+    	{% block css_block %}{% endblock %}
+
+    </head>
+
+    <body>
+
+		<nav class="navbar navbar-inverse navbar-static-top">
+			<div class="container">
+				<div class="navbar-header">
+					<a class="navbar-brand" href="/"><span class="glyphicon glyphicon-lock"></span> SafeCollab</a>
+				</div>
+
+				{% if user.is_authenticated %}
+			    <ul class="nav navbar-nav">
+			    	{% url 'home' as home_url %}
+			    	{% url 'reports:index' as reports_url %}
+			    	{% url 'groups' as groups_url %}
+			    	<li {% if home_url in request.path %}class="active"{% endif %}><a href="{{ home_url }}">Home</a></li>
+			    	<li {% if reports_url in request.path %}class="active"{% endif %}><a href="{{ reports_url }}">Reports</a></li>
+			    	
+			    	{% if user.groups.all %} <!-- User has groups -->
+			    	<li class="dropdown{% if groups_url in request.path %} active{% endif %}">
+			    		<a href="{{ groups_url }}">Groups <span class="caret"></span></a>
+        				<ul class="dropdown-menu">
+				    		{% for group in user.groups.all %}
+				    		{% url 'group-summary' group_id=group.id as group_url %}
+				    		<li {% if group_url in request.path %}class="active"{% endif %}><a href="{{ group_url }}">{{ group.name }}</a></li>
+				    		{% endfor %}
+			    		</ul>
+			    	</li>
+
+		    		{% else %}
+		    		<li {% if request.path == groups_url %}class="active"{% endif %}><a href="{{ groups_url }}">Groups</a></li>
+		    		
+		    		{% endif %}
+
+			    </ul>
+			    {% endif %}
+
+			    <ul class="nav navbar-nav navbar-right">
+			    	{% if not user.is_authenticated %}
+
+					<li>
+			    		<form class="form-horizontal" role="form" method="post" action="{% url 'users:login' %}">
+						    {% csrf_token %}
+						    <div class="control-group">
+							    <div class="controls form-inline">
+									<input type="text" name="username" class="form-control" id="usr" placeholder="Username" required>
+									<input type="password" name="password" class="form-control" id="pwd" placeholder="Password" required>
+									<button class="btn btn-default navbar-btn" type="submit" name="submit"><span class="glyphicon glyphicon-log-in"></span> Login</button>
+								</div>
+							</div>
+						</form>
+					</li>
+
+					<li>
+						<a><span class="text-muted"> or </span></a>
+					</li>
+					<li>
+						<form class="form-horizontal" role="form">
+							<div class="control-group">
+							    <div class="controls form-inline">
+						            <a class="btn btn-social-icon btn-facebook navbar-btn" href="{% url 'social:begin' 'facebook' %}?next={{ request.path }}">
+						                <span class="fa fa-facebook"></span>
+						            </a>
+						            <a class="btn btn-social-icon btn-google navbar-btn" href="{% url 'social:begin' 'google-oauth2' %}?next={{ request.path }}">
+						                <span class="fa fa-google"></span>
+						            </a>
+						            <a class="btn btn-social-icon btn-twitter navbar-btn" href="{% url 'social:begin' 'twitter' %}?next={{ request.path }}">
+						                <span class="fa fa-twitter"></span>
+						            </a>
+						        </div>
+				        	</div>
+				    	</form>
+				    </li>
+
+				    {% else %}
+
+				    {% url 'users:view-profile' user_id=user.id as profile_url %}
+				    <li {% if profile_url in request.path %}class="active"{% endif %}>
+				    	<a href="{{ profile_url }}">
+							{% if user.user_profile.picture %}
+							<div class="navbar-text navbar-prof-pic-container">
+								<img class="img-responsive navbar-prof-pic" src="{{ user.user_profile.picture.url }}" />
+							</div>
+							{% else %}
+							<div class="navbar-text navbar-prof-pic-container" style="background-color: inherit;">
+								<span class="glyphicon glyphicon-user" style="font-size: 20px;"></span>
+							</div>
+							{% endif %}
+				    		{{ user.first_name }} {{ user.last_name }}
+				    	</a>
+				    </li>
+				    {% url 'inbox:index' as inbox_url %}
+				    <li {% if request.path == inbox_url %}class="active"{% endif %}>
+				    	<a href="{{ inbox_url }}">
+							<span class="badge" id="new-message-count">{{ user.get_unread_messages|length }}</span> Inbox
+						</a>
+				    </li>
+				    <li>
+        				<a href="/users/logout"><span class="glyphicon glyphicon-log-out"></span> Logout</a>
+    				</li>
+				    
+				    {% endif %}
+    				<!-- <li><a href="#"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li> -->
+    			</ul>
+			</div>
+		</nav>
+
+        <div class="container">
+            {% block body_block %}
+            	<div class="panel panel-default col-md-8 col-md-offset-2">
+					<div class="panel-body">
+						{% block content_block %}{% endblock %}
+	            	</div>
+            	</div>
+            {% endblock %}
+        </div>
+
+		<footer class="footer navbar-static-bottom">
+			<div class="container text-center">
+				<a href="/about">About</a> | <a href="/contact">Contact Us</a> <br/>
+				<span>Copyright © 2016</span>
+			</div>
+		</footer>
+
+
+    </body>
+    
+	{% block script_block %}{% endblock %}
+
+</html>
