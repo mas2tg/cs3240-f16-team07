@@ -5,6 +5,8 @@ from django.contrib.auth.models import User, Group, Permission
 from users.models import UserProfile, UserForm, UserProfileForm
 from reports.models import Report, ReportForm, Folder
 from django.db.models import Q
+from django.conf import settings
+from django.core import serializers
 
 def index(request):
 	if request.user.is_authenticated():
@@ -15,6 +17,16 @@ def index(request):
 		'profile_form': UserProfileForm(),
 	}
 	return render(request, 'index.html', context_dict)
+
+def fda_index(request):
+        username = request.GET.get('username',default="Do not exist")
+        username = User.objects.filter(username=username)
+        category_list = Report.objects.filter(Q(private=False) | Q(creator=username))
+        #context_dict = {'reports':category_list,"type":queryType)
+        #return HttpResponse("Hello from fda_index %s" % username)
+        #print(category_list)
+        json_data = serializers.serialize("json",category_list)
+        return HttpResponse(json_data,content_type='application/json')
 
 @login_required
 def home(request):

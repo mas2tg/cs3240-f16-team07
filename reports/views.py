@@ -31,11 +31,7 @@ def index(request, folder_name='$'):
                 category_list = category_list.filter(Q(name__icontains=query))
             elif (queryType=="description"):
                 category_list = category_list.filter(Q(description__icontains=query))
-
-
         folder_list = Folder.objects.all();
-        
-
         context_dict = {'reports':category_list,"type":queryType,'folders':folder_list}
         # Return a rendered response to send to the client.
         # We make use of the shortcut function to make our lives easier.
@@ -47,6 +43,7 @@ def index(request, folder_name='$'):
         category_list = Report.objects.filter(folder=folder.id)
         context_dict = {'reports':category_list}
         return render(request, 'reports.html', context_dict)
+    
         
 
 

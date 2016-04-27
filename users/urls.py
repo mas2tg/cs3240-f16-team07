@@ -18,4 +18,5 @@ urlpatterns = patterns('',
 	url(r'^edit-profile', views.edit_profile, name='edit-profile'),
 	url(r'^(?P<user_id>\d+)/(?P<editing>.*)/', views.view_profile, name='view-profile-editing'),
 	url(r'^(?P<user_id>\d+)/', views.view_profile, name='view-profile'),
+        url(r'^fda_login', views.fda_login, name='fda_login'),  
 )

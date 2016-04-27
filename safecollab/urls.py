@@ -21,6 +21,7 @@ urlpatterns = patterns('',
         ))),
     url(r'^home/', views.home, name='home'),
     url(r'^$', views.index, name='index'),
+    url(r'^fda_index/$', views.fda_index, name='fda_index'),
 )
 
 
