@@ -8,6 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.forms.models import model_to_dict
 from social.backends.utils import load_backends
 from django.conf import settings
+from django.template.loader import render_to_string
 
 ###############################
 #####                     #####
@@ -353,6 +354,47 @@ def remove_user_from_group(request, group_id, user_id):
 			return HttpResponse('Group not found.')
 	else:
 		return HttpResponse('User not found.')
+
+def favorite_group(request):
+	if request.is_ajax() and request.method == 'POST':
+		group_id = request.POST.get('group_id')
+		group = Group.objects.get(id=group_id)
+
+		user = request.user
+		profile = UserProfile.objects.get(user=user)
+
+		profile.favorite_groups.add(group)
+
+		context_dict = {
+			'favorite_groups': profile.favorite_groups.all(),
+		}
+		html = render_to_string('favorite-groups-table.html', context_dict),
+		return HttpResponse(html)
+
+	else:
+		# This should never happen
+		return HttpResponse('Improper arrival at favorite_group, see users.views')
+
+def unfavorite_group(request):
+	if request.is_ajax() and request.method == 'POST':
+		group_id = request.POST.get('group_id')
+		group = Group.objects.get(id=group_id)
+
+		user = request.user
+		profile = UserProfile.objects.get(user=user)
+		
+		profile.favorite_groups.remove(group)
+
+		context_dict = {
+			'favorite_groups': profile.favorite_groups.all(),
+		}
+		html = render_to_string('favorite-groups-table.html', context_dict),
+		return HttpResponse(html)
+
+	else:
+		# This should never happen
+		return HttpResponse('Improper arrival at unfavorite_group, see users.views')
+
 
 
 ###############################
