@@ -39,6 +39,7 @@ def home(request):
 def groups(request):
 	group_ids = set([ group.id for group in request.user.groups.all() ])
 	context_dict = {
+		'favorite_groups': UserProfile.objects.get(user__id=request.user.id).favorite_groups.all(),
 		'other_groups': Group.objects.filter(~Q(id__in=group_ids)),
 	}
 	return render(request, 'groups.html', context_dict)

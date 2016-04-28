@@ -1,0 +1,39 @@
+
+	<div id="favorites-table-container">
+		{% if favorite_groups %} <!-- User has favorite groups -->
+		<table data-toggle="table">
+			<thead>
+				<tr>
+					<th class="star-column"></th>
+					<th data-sortable="true">Name</th>
+					<th data-sortable="true"># of Members</th>
+				</tr>
+			</thead>
+			<tbody data-link="row" class="rowlink">
+				{% for group in favorite_groups|dictsort:'name' %}
+					<tr>
+						<td class="rowlink-skip">
+							{% if group in favorite_groups %}
+							<button class="favorite-button" id="{{ group.id }}_favorite-button" onclick="unfavorite({{ group.id }});">
+								<span class="glyphicon glyphicon-star" id="{{ group.id }}_favorite-star" style="color:gold;"></span>
+							</button>
+							{% else %}
+							<button class="favorite-button" id="{{ group.id }}_favorite-button" onclick="favorite({{ group.id }});">
+								<span class="glyphicon glyphicon-star-empty" id="{{ group.id }}_favorite-star" ></span>
+							</button>
+							{% endif %}
+						</td>
+						<td><a href="{% url 'group-summary' group_id=group.id %}"></a>{{ group.name }}</td>
+						<td>{{ group.user_set.all|length }}</td>
+					</tr>
+		    	{% endfor %}
+			</tbody>
+		</table>
+		{% else %}
+		You have not set any favorites.
+		{% endif %}
+	</div>
+
+	{% load staticfiles %}
+	<script src="{% static 'bootstrap-table/bootstrap-table.js' %}"></script>
+	<script src="{% static 'jasny-bootstrap/rowlink.js' %}"></script>

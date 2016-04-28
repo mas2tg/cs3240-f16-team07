@@ -1,5 +1,20 @@
 {% extends 'base.html' %}
 
+{% block css_block %}
+
+	<style>
+		.favorite-button {
+			padding: 0;
+			border: none;
+			background: none;
+		}
+		.star-column {
+			width: 1px;
+		}
+	</style>
+
+{% endblock %}
+
 {% block content_block %}
 
 <div class="text-center col-md-offset-3" style="position: absolute; z-index: 1000; left: 0; right: 0;"> <h3 style="display: inline; margin-top: 0;">Groups</h3> </div>
@@ -41,6 +56,7 @@
 
 <ul class="nav nav-pills nav-stacked col-md-3">
 <li class="active"><a data-toggle="pill" href="#my-groups">My groups</a></li>
+<li><a data-toggle="pill" href="#favorites">Favorites</a></li>
 {% if perms.users.site_manager %}<li><a data-toggle="pill" href="#other-groups">Other groups</a></li>{% endif %}
 </ul>
 
@@ -51,6 +67,7 @@
 		<table data-toggle="table">
 			<thead>
 				<tr>
+					<th class="star-column"></th>
 					<th data-sortable="true">Name</th>
 					<th data-sortable="true"># of Members</th>
 				</tr>
@@ -58,6 +75,17 @@
 			<tbody data-link="row" class="rowlink">
 				{% for group in user.groups.all|dictsort:'name' %}
 					<tr>
+						<td class="rowlink-skip">
+							{% if group in favorite_groups %}
+							<button class="favorite-button" id="{{ group.id }}_favorite-button" onclick="unfavorite({{ group.id }});">
+								<span class="glyphicon glyphicon-star" id="{{ group.id }}_favorite-star" style="color:gold;"></span>
+							</button>
+							{% else %}
+							<button class="favorite-button" id="{{ group.id }}_favorite-button" onclick="favorite({{ group.id }});">
+								<span class="glyphicon glyphicon-star-empty" id="{{ group.id }}_favorite-star" ></span>
+							</button>
+							{% endif %}
+						</td>
 						<td><a href="{% url 'group-summary' group_id=group.id %}"></a>{{ group.name }}</td>
 						<td>{{ group.user_set.all|length }}</td>
 					</tr>
@@ -70,13 +98,51 @@
 
 	</div>
 
+	<div id="favorites" class="tab-pane fade">
+		<div id="favorites-table-container">
+			{% if favorite_groups %} <!-- User has favorite groups -->
+			<table data-toggle="table">
+				<thead>
+					<tr>
+						<th class="star-column"></th>
+						<th data-sortable="true">Name</th>
+						<th data-sortable="true"># of Members</th>
+					</tr>
+				</thead>
+				<tbody data-link="row" class="rowlink">
+					{% for group in favorite_groups|dictsort:'name' %}
+						<tr>
+							<td class="rowlink-skip">
+								{% if group in favorite_groups %}
+								<button class="favorite-button" id="{{ group.id }}_favorite-button" onclick="unfavorite({{ group.id }});">
+									<span class="glyphicon glyphicon-star" id="{{ group.id }}_favorite-star" style="color:gold;"></span>
+								</button>
+								{% else %}
+								<button class="favorite-button" id="{{ group.id }}_favorite-button" onclick="favorite({{ group.id }});">
+									<span class="glyphicon glyphicon-star-empty" id="{{ group.id }}_favorite-star" ></span>
+								</button>
+								{% endif %}
+							</td>
+							<td><a href="{% url 'group-summary' group_id=group.id %}"></a>{{ group.name }}</td>
+							<td>{{ group.user_set.all|length }}</td>
+						</tr>
+			    	{% endfor %}
+				</tbody>
+			</table>
+			{% else %}
+			You have not set any favorites.
+			{% endif %}
+		</div>
+	</div>
+
 	{% if perms.users.site_manager %}
 	<div id="other-groups" class="tab-pane fade">
 
-		{% if other_groups %} <!-- User has groups -->
+		{% if other_groups %} <!-- There are other groups -->
 		<table data-toggle="table">
 			<thead>
 				<tr>
+					<th class="star-column"></th>
 					<th data-sortable="true">Name</th>
 					<th data-sortable="true"># of Members</th>
 				</tr>
@@ -84,6 +150,17 @@
 			<tbody data-link="row" class="rowlink">
 				{% for group in other_groups|dictsort:'name' %}
 					<tr>
+						<td class="rowlink-skip">
+							{% if group in favorite_groups %}
+							<button class="favorite-button" id="{{ group.id }}_favorite-button" onclick="unfavorite({{ group.id }});">
+								<span class="glyphicon glyphicon-star" id="{{ group.id }}_favorite-star" style="color:gold;"></span>
+							</button>
+							{% else %}
+							<button class="favorite-button" id="{{ group.id }}_favorite-button" onclick="favorite({{ group.id }});">
+								<span class="glyphicon glyphicon-star-empty" id="{{ group.id }}_favorite-star" ></span>
+							</button>
+							{% endif %}
+						</td>
 						<td><a href="{% url 'group-summary' group_id=group.id %}"></a>{{ group.name }}</td>
 						<td>{{ group.user_set.all|length }}</td>
 					</tr>
@@ -101,3 +178,68 @@
 
 
 {% endblock %}
+
+
+
+{% block script_block %}
+
+<script>
+
+	function favorite(group_id) {
+		$.ajax({
+			headers: { "X-CSRFToken": getCookie('csrftoken') },
+			type: 'POST',
+			url: '/users/favorite-group',
+			data: {
+				group_id: group_id,
+			},
+			success: function(data) {
+				$('*[id*=' + group_id + '_favorite-button]').each( function() {
+					$(this).on('click', function() {
+						unfavorite(group_id);
+					});
+				});
+
+				$('*[id*=' + group_id + '_favorite-star]').each( function() {
+					$(this).removeClass('glyphicon-star-empty');
+					$(this).addClass('glyphicon-star');
+					$(this).css('color','gold');
+				});
+
+				$('#favorites-table-container').html(data);
+			},
+		});
+	}
+
+	function unfavorite(group_id) {
+		$.ajax({
+			headers: { "X-CSRFToken": getCookie('csrftoken') },
+			type: 'POST',
+			url: '/users/unfavorite-group',
+			data: {
+				group_id: group_id,
+			},
+			success: function(data) {
+				$('*[id*=' + group_id + '_favorite-button]').each( function() {
+					$(this).on('click', function() {
+						favorite(group_id);
+					});
+				});
+
+				$('*[id*=' + group_id + '_favorite-star]').each( function() {
+					$(this).removeClass('glyphicon-star');
+					$(this).addClass('glyphicon-star-empty');
+					$(this).css('color','');
+				});
+
+				$('#favorites-table-container').html(data);
+			},
+		});
+	}
+
+</script>
+
+{% endblock %}
+
+
+
