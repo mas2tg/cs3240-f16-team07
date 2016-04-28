@@ -1,6 +1,6 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render,get_object_or_404
-from reports.models import Report, ReportForm, Folder
+from reports.models import Report, ReportForm, Folder, FileForm, File
 #from auth.models
 from django.db.models import Q
 from django.utils.encoding import smart_str
@@ -51,56 +51,94 @@ def detail(request,file_name):
     report = Report.objects.filter(name=file_name)
 
     has_permission= (request.user.has_perm('users.site_manager'))
-    context_dict = {'reports':report,"has_permission":has_permission}
+    files = (File.objects.filter(report=report))
+    context_dict = {'reports':report,"has_permission":has_permission,"files":files}
 
 
     return render(request, 'detail.html', context_dict)
 
-def edit(request,file_name): #TODO: figure out how to include POST in request
+def edit(request,file_name): #TODO: implement delete option for individual files
     report=get_object_or_404(Report, name=file_name)
+    file=File.objects.filter(report=report)
     obj_list = Folder.objects.filter(creator=request.user)
     is_owner = report.creator == request.user
     # form = ReportForm(request.POST, intance=report)
+    
     if request.method== "POST":
         #report = report.save(commit=False)
         report.name = request.POST.get('name')
         report.description = request.POST.get('description')
         report.longDescription = request.POST.get('longDescription')
-        report.path = request.POST.get('path')
         report.private = True if request.POST.get('private') else False
         report.encrypted = True if request.POST.get('encrypted') else False
         folder_obj = get_object_or_404(Folder, name=request.POST.get('folder'))
         report.folder= folder_obj
+
+
         report.save()
+        
+        paths = request.FILES.getlist('path')
+        #print(request)
+        for path in paths:
+            File(report=report, path=path).save() #pass variables to fields
+
+        
+
         return HttpResponseRedirect('/reports/$/')
     else:
-        context_dict = {'reports':report,'folders':obj_list,'is_owner':is_owner}
+        context_dict = {'reports':report,'folders':obj_list,'is_owner':is_owner,'files':file}
 
         return render(request, 'edit.html', context_dict)
 
             #return render(request, 'detail.html', context_dict)
 
-def delete(request,file_name):
-    report=get_object_or_404(Report, name=file_name).delete()
-
+def delete(request,file_name): #Delete reports #TODO: implement delete files separately
+    
+    report=get_object_or_404(Report, name=file_name)
+    file=File.objects.filter(report=report).delete() # delete files from report first!
+    report.delete()
+    
     return HttpResponseRedirect('/reports/$/')
 
+def delete_file(request, path, report_name):
+    File.objects.filter(path=path).delete() #must query by report and by name
 
-def add_report(request):
+    #print(files)
+    report=get_object_or_404(Report, name=report_name)
+    obj_list = Folder.objects.filter(creator=request.user)
+    file=File.objects.filter(report=report)
+    is_owner = report.creator == request.user
+
+    context_dict = {'reports':report,'folders':obj_list,'is_owner':is_owner,'files':file}
+    return render(request, 'edit.html', context_dict)
+    #return HttpResponse("File deleted!")
+
+def add_report(request): #the user is able to select multiple files
         if request.method == 'POST':
                 form = ReportForm(request.POST, request.FILES)
                 creator = request.user
                 name = request.POST.get('name')
                 description = request.POST.get('description')
-                path = request.FILES.get('path')
+                
                 encrypted = True if request.POST.get('encrypted') else False
                 longDescription = request.POST.get('longDescription')
                 private = True if request.POST.get('private') else False
 
-                report = Report(creator_id=creator.id, encrypted=encrypted, name=name, description=description, path=path,longDescription=longDescription,private =private)
+                report = Report(creator_id=creator.id, encrypted=encrypted, name=name, description=description,longDescription=longDescription,private =private)
 
+                
+                
                 # Now we save the UserProfile model instance.
                 report.save()
+
+                #file = File(report=report, path=paths) #pass variables to fields
+                
+                paths = request.FILES.getlist('path')
+                #print(request.FILES)
+                for path in paths:
+                    File(report=report, path=path).save() #pass variables to fields
+                    
+                #file.save()
 
                 return HttpResponseRedirect('/reports/$/')
 
@@ -118,7 +156,7 @@ def add_folder(request):
     return HttpResponseRedirect('/reports/$/')
 
 
-def download(request,link_to_file):
+def download(request,link_to_file): #TODO:download is still not working
 #       path = os.path.join(BASE_DIR, 'media')
 #       path += "/attachments"
 #       filename=link_to_file
