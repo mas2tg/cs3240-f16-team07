@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+
+<html>
+	{% load staticfiles %}
+	
+	<head>
+        <title>SafeCollab</title>
+    	<link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap.min.css' %}" />
+    	<!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" /> -->
+		<link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css" rel="stylesheet">
+		<link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+		<link rel="stylesheet" type="text/css" href="{% static 'bootstrap-social-gh-pages/bootstrap-social.css' %}" />
+
+    	<style>
+	    	html {
+				position: relative;
+				min-height: 100%;
+			}
+			body {
+				/* Margin bottom by footer height */
+				margin-bottom: 45px;
+				background: #eeeeee;
+			}
+			.footer {
+				position: absolute;
+				bottom: 0;
+				width: 100%;
+				/* Set the fixed height of the footer here */
+				height: 45px;
+				background-color: inherit;
+			}
+    	</style>
+
+    	{% block css_block %}{% endblock %}
+
+    </head>
+
+    <body>
+
+		<!-- navbar-static-top container forces content to render below navbar -->
+ 		<div class='navbar navbar-default navbar-static-top'style="height:0px;">
+	    	<!-- height set to 0 to remove dead sliver that appears under navbar #hack not the best solution but functional -->
+			<nav class="navbar navbar-inverse navbar-fixed-top" style="height:0px;">
+				<div class="container">
+					<div class="navbar-header">
+						<a class="navbar-brand" href="/"><span class="glyphicon glyphicon-lock"></span> SafeCollab</a>
+					</div>
+
+					{% if user.is_authenticated %}
+				    <ul class="nav navbar-nav">
+				    	{% url 'home' as home_url %}
+				    	{% url 'reports' as reports_url %}
+				    	{% url 'groups' as groups_url %}
+				    	<li {% if request.path == home_url %}class="active"{% endif %}><a href="/home">Home</a></li>
+				    	<li {% if request.path == reports_url %}class="active"{% endif %}><a href="/reports">Reports</a></li>
+				    	
+				    	{% if user.groups.all %} <!-- User has groups -->
+				    	<li class="dropdown{% if request.path == groups_url %} active{% endif %}">
+				    		<a class="dropdown-toggle" data-toggle="dropdown" href="/groups">Groups <span class="caret"></span></a>
+	        				<ul class="dropdown-menu">
+					    		{% for group in user.groups.all %}
+					    		<li {% if group.name == request.GET.name %}class="active"{% endif %}><a href="/groups?name={{ group.name }}">{{ group.name }}</a></li>
+					    		{% endfor %}
+				    		</ul>
+				    	</li>
+
+			    		{% else %}
+			    		<li {% if request.get_full_path == groups_url %}class="active"{% endif %}><a href="/groups">Groups</a></li>
+			    		
+			    		{% endif %}
+
+				    </ul>
+				    {% endif %}
+
+				    <ul class="nav navbar-nav navbar-right">
+				    	{% if not user.is_authenticated %}
+
+						<li>
+				    		<form class="form-horizontal" role="form" method="post" action="/users/login">
+							    {% csrf_token %}
+							    <div class="control-group">
+								    <div class="controls form-inline">
+										<input type="text" name="username" class="form-control" id="usr" placeholder="Username">
+										<input type="password" name="password" class="form-control" id="pwd" placeholder="Password">
+										<button class="btn btn-default navbar-btn" type="submit" name="submit"><span class="glyphicon glyphicon-log-in"></span> Login</button>
+									</div>
+								</div>
+							</form>
+						</li>
+
+					    {% else %}
+					    <li>
+					    	<div class="navbar-text">
+					    		<img style="max-height: 20px; overflow: visible; padding-top: 0; padding-bottom: 0;" src="{{ user.user_profile.picture.url }}" />
+					    		{{ user.first_name }} {{ user.last_name }}
+					    	</div>
+					    </li>
+					    {% url 'inbox' as inbox_url %}
+					    <li {% if request.path == inbox_url %}class="active"{% endif %}>
+					    	<a href="/inbox">
+								<span class="badge" id="new-message-count">{{ user.get_unread_messages|length }}</span> Inbox
+							</a>
+					    </li>
+					    <li>
+	        				<a href="/users/logout"><span class="glyphicon glyphicon-log-out"></span> Logout</a>
+	    				</li>
+					    
+					    {% endif %}
+	    				<!-- <li><a href="#"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li> -->
+	    			</ul>
+				</div>
+			</nav>
+		</div>
+
+        <div class="container">
+            {% block body_block %}
+            	<div class="panel panel-default">
+					<div class="panel-body">
+						{% block content_block %}{% endblock %}
+	            	</div>
+            	</div>
+            {% endblock %}
+        </div>
+
+		<footer class="footer navbar-static-bottom">
+			<div class="container text-center">
+				<a href="/about">About</a> | <a href="/contact">Contact Us</a> <br/>
+				<span>Copyright © 2016</span>
+			</div>
+		</footer>
+
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+		<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    </body>
+
+</html>
