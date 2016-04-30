@@ -31,10 +31,41 @@ def fda_index(request):
 @login_required
 def home(request):
 	obj_list = Folder.objects.filter(creator=request.user)
-	return render(request, 'home.html', {
+	context_dict = {
 		'form': ReportForm(),
 		'folders': obj_list,
-		})
+	}
+	return render(request, 'home.html', context_dict)
+
+def process_query(raw):
+	current_string = ''
+	for token in raw.split():
+		pass
+def search(request):
+	if request.method == "POST":
+		query_type = request.POST.get('query_type','All')
+		query = request.POST.get('query','')
+		
+		context_dict = { 'query_type': query_type }
+		
+		if query_type == 'All':
+			context_dict['user_results'] = User.objects.filter()
+			context_dict['report_results'] = Report.objects.filter()
+			context_dict['group_results'] = Group.objects.filter()
+		elif query_type == 'Users':
+			context_dict['user_results'] = User.objects.filter()
+		elif query_type == 'Reports':
+			context_dict['report_results'] = Report.objects.filter()
+		elif query_type == 'Groups':
+			context_dict['group_results'] = Group.objects.filter()
+		else:
+			context_dict['user_results'] = User.objects.filter()
+			context_dict['report_results'] = Report.objects.filter()
+			context_dict['group_results'] = Group.objects.filter()
+
+		return render
+	else:
+		return HttpResponseRedirect('')
 
 def groups(request):
 	group_ids = set([ group.id for group in request.user.groups.all() ])

@@ -55,3 +55,13 @@ class UserProfileForm(forms.ModelForm):
 	class Meta:
 		model = UserProfile
 		fields = ('website', 'picture')
+
+class LoginForm(forms.ModelForm):
+	username = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))
+	password = forms.CharField(required=True, widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+	
+	class Meta:
+		model = User
+		fields = ('username', 'password')
+
+

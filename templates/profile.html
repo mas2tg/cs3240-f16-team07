@@ -38,15 +38,17 @@
 
 {% if editing %}
 <script type="text/javascript">
-    $(window).load(function () {
+    $(document).ready(function () {
+    	$('#editProfileModal').removeClass('fade');
         $('#editProfileModal').modal('show');
+    	$('#editProfileModal').addClass('fade');
     });
 </script>
 {% endif %}
 
 <button type="button" class="btn btn-primary btn-sm" style="position: absolute;" data-toggle="modal" data-target="#editProfileModal">Edit profile</button>
 
-<div class="modal" id="editProfileModal" role="dialog" tabindex="-1" aria-labelledby="editProfile" aria-hidden="true">
+<div class="modal fade" id="editProfileModal" role="dialog" tabindex="-1" aria-labelledby="editProfile" aria-hidden="true">
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
 
@@ -63,47 +65,47 @@
 
 					{% csrf_token %}
 
-            {% with form=user_form %}
-                {% if form.non_field_errors %}
-                    <ul>
-                        {% for error in form.non_field_errors %}
-                            <li>{{ error }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-                {% for field in form %}
-                    <div class="form-group" id="{{ field.auto_id }}_container">
-                        {{ field.help_text }}
-                        <div>
-                            {{ field.label_tag }} {{ field }}
-                        </div>
-                        <div id="{{ field.auto_id }}_errors">
-                            {{ field.errors }}
-                        </div>
-                    </div>
-                {% endfor %}
-            {% endwith %}
+		            {% with form=user_form %}
+		                {% if form.non_field_errors %}
+		                    <ul>
+		                        {% for error in form.non_field_errors %}
+		                            <li>{{ error }}</li>
+		                        {% endfor %}
+		                    </ul>
+		                {% endif %}
+		                {% for field in form %}
+		                    <div class="form-group" id="{{ field.auto_id }}_container">
+		                        {{ field.help_text }}
+		                        <div>
+		                            {{ field.label_tag }} {{ field }}
+		                        </div>
+		                        <div id="{{ field.auto_id }}_errors">
+		                            {{ field.errors }}
+		                        </div>
+		                    </div>
+		                {% endfor %}
+		            {% endwith %}
 
-            {% with form=profile_form %}
-                {% if form.non_field_errors %}
-                    <ul>
-                        {% for error in form.non_field_errors %}
-                            <li>{{ error }}</li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-                {% for field in form %}
-                    <div class="form-group" id="{{ field.auto_id }}_container">
-                        {{ field.help_text }}
-                        <div>
-                            {{ field.label_tag }} {{ field }}
-                        </div>
-                        <div id="{{ field.auto_id }}_errors">
-                            {{ field.errors }}
-                        </div>
-                    </div>
-                {% endfor %}
-            {% endwith %}
+		            {% with form=profile_form %}
+		                {% if form.non_field_errors %}
+		                    <ul>
+		                        {% for error in form.non_field_errors %}
+		                            <li>{{ error }}</li>
+		                        {% endfor %}
+		                    </ul>
+		                {% endif %}
+		                {% for field in form %}
+		                    <div class="form-group" id="{{ field.auto_id }}_container">
+		                        {{ field.help_text }}
+		                        <div>
+		                            {{ field.label_tag }} {{ field }}
+		                        </div>
+		                        <div id="{{ field.auto_id }}_errors">
+		                            {{ field.errors }}
+		                        </div>
+		                    </div>
+		                {% endfor %}
+		            {% endwith %}
 
 					<!-- Provide a button to click to submit the form. -->
 					<input class="btn btn-default" type="submit" name="submit" value="Submit" />
@@ -186,9 +188,11 @@
 <div class="row text-center">
 	<label class="control-label" for="username">Username:</label> <span id="username">{{ disp_user.username }}</span>
 </div>
+{% if disp_user.email %}
 <div class="row text-center">
 	<label class="control-label" for="email">Email:</label> <a href="mailto:{{ disp_user.email }}"><span id="email">{{ disp_user.email }}</span></a>
 </div>
+{% endif %}
 {% if disp_user.user_profile.website %}
 <div class="row text-center">
 	<label class="control-label" for="website">Website:</label> <a href="{{ disp_user.user_profile.website }}"><span id="website">{{ disp_user.user_profile.website }}</span></a>
