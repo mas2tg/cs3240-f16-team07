@@ -46,7 +46,7 @@
 			body {
 				/* Margin bottom by footer height */
 				margin-bottom: 50px;
-				background: url("/static/backgrounds/Blurred Backgrounds (1).jpg") no-repeat center center fixed; 
+				background: #668A4F url("{% static 'backgrounds/Blurred Backgrounds (1).jpg' %}") no-repeat center center fixed; 
 			    -webkit-background-size: cover;
 			    -moz-background-size: cover;
 			    -o-background-size: cover;
@@ -67,7 +67,7 @@
 				display: block;
 			}
 	        .navbar-prof-pic-container {
-				background: #000;
+				background-color: black;
 				color: #fff;
 				width: 28px;
 				height: 28px;
@@ -86,8 +86,6 @@
 				justify-content: center;
 			}
 			.navbar-prof-pic {
-				padding-top: 0;
-				padding-bottom: 0;
 				max-width: 28px;
 				max-height: 28px;
 			}
@@ -191,11 +189,11 @@
 				    	<a href="{{ profile_url }}">
 							{% if user.user_profile.picture %}
 							<div class="navbar-text navbar-prof-pic-container">
-								<img class="img-responsive navbar-prof-pic" src="{{ user.user_profile.picture.url }}" />
+								<div><img class="img-responsive navbar-prof-pic" src="{{ user.user_profile.picture.url }}" /></div>
 							</div>
 							{% else %}
 							<div class="navbar-text navbar-prof-pic-container" style="background-color: inherit;">
-								<span class="glyphicon glyphicon-user" style="font-size: 20px;"></span>
+								<div><span class="glyphicon glyphicon-user" style="font-size: 20px;"></span></div>
 							</div>
 							{% endif %}
 				    		{{ user.first_name }} {{ user.last_name }}

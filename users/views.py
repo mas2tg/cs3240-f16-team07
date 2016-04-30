@@ -452,8 +452,6 @@ def edit_profile(request):
 		else:
 			profile = query_set[0]
 
-		print(request.POST)
-
 		if 'username' in request.POST and request.POST.get('username'):
 			user.username = request.POST.get('username')
 		if 'password' in request.POST and request.POST.get('password'):
