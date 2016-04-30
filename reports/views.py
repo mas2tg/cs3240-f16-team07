@@ -27,7 +27,7 @@ def index(request, folder_name='$'):
         query = request.GET.get("q")
         if(query):
             if (queryType=="name"):
-                search = query.split(" ")
+                search = query.split()
                 if "and" in search:
                     x=search.index('and')
                     category_list=category_list.filter(Q(name__icontains=search[x-1]))
