@@ -186,5 +186,11 @@ def add_folder(request):
     folder.save()
     return HttpResponseRedirect('/reports/$/')
 
+def delete_folder(request,folder_id):
 
-
+    folder=get_object_or_404(Folder,id=folder_id)
+    reports_list = Report.objects.filter(folder=folder)
+    for report in reports_list:
+        report.folder= None
+    folder.delete()
+    return HttpResponseRedirect('/reports/$/')

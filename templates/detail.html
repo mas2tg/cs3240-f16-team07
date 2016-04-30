@@ -8,6 +8,7 @@
 
             {% csrf_token %}
     {% for report in reports %}
+        {%if has_permission or report.creator ==  request.user or report.private == false%}
             File name: {{ report.name }}
             <br />
             Owner of the File : {{report.creator}}<br/>
@@ -25,11 +26,21 @@
         {%if has_permission or report.creator ==  request.user%}
          <a class="button" method="POST" href="/reports/delete/{{ report.name }}">Delete</a>
 
-        {%else%}
-        Delete
-        {% endif %}
-      {% endfor %}
-    <br/>
+            {%else%}
+            Delete
+         {% endif %}
+
+         {% else %}
+            Invalid access
+
+            {% endif %}
+
+
+
+            {% endfor %}
+            <br/>
+
+
 
 
     {% else %}
