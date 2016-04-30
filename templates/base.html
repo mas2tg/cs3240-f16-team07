@@ -67,7 +67,7 @@
 				display: block;
 			}
 	        .navbar-prof-pic-container {
-				background: #000;
+				background-color: black;
 				color: #fff;
 				width: 28px;
 				height: 28px;
@@ -189,11 +189,11 @@
 				    	<a href="{{ profile_url }}">
 							{% if user.user_profile.picture %}
 							<div class="navbar-text navbar-prof-pic-container">
-								<img class="img-responsive navbar-prof-pic" src="{{ user.user_profile.picture.url }}" />
+								<div><img class="img-responsive navbar-prof-pic" src="{{ user.user_profile.picture.url }}" /></div>
 							</div>
 							{% else %}
 							<div class="navbar-text navbar-prof-pic-container" style="background-color: inherit;">
-								<span class="glyphicon glyphicon-user" style="font-size: 20px;"></span>
+								<div><span class="glyphicon glyphicon-user" style="font-size: 20px;"></span></div>
 							</div>
 							{% endif %}
 				    		{{ user.first_name }} {{ user.last_name }}

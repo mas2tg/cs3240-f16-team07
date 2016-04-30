@@ -39,8 +39,10 @@ def home(request):
 
 def process_query(raw):
 	current_string = ''
+	query = Q()
 	for token in raw.split():
-		pass
+		if token.toUpper() == 'AND':
+			query = query & Q
 def search(request):
 	if request.method == "POST":
 		query_type = request.POST.get('query_type','All')
