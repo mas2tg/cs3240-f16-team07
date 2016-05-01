@@ -2,49 +2,6 @@
 
 {% block content_block %}
 
-    <form class="form-horizontal" role="form" method="post" action="{% url 'search' %}">
-        {% csrf_token %}
-        <div class="col-md-12" style="padding:0;">
-            <div class="input-group">
-                <select name="query_type" class="form-control input-lg" style="width:30%;border-right:none;">
-                    <option selected="selected">All</option>
-                    <option>Users</option>
-                    <option>Reports</option>
-                    <option>Groups</option>
-                </select>
-                <input type="text" name="query" class="form-control input-lg" style="width:70%;" placeholder="Search" />
-                <span class="input-group-btn">
-                    <button class="btn btn-lg btn-default search-button" type="submit">
-                        <i class="glyphicon glyphicon-search"></i>
-                    </button>
-                </span>
-            </div>
-        </div>
-    </form>
-
-    <strong>Add a Report!</strong>
-    <form id="report_form" enctype="multipart/form-data"  method="post" action="{% url 'reports:add-report' %}">
-
-        {% csrf_token %}
-        <form id="create_report" method="post" action="{% url 'reports:add-report' %}">
-        {% csrf_token %}
-        File name: <input type="text" name="name" value="" size="30" />
-        <br />
-         Short Description: <input type="text" name="description" value="" size="30" /><br/>
-         Long Description: <input type="text" name="longDescription" value="" size="30" /><br/>
-         folder:  <select name="type">
-         {% if folders %}
-         {% for folder in folders %}
-    <option value="{{ folder.name }}">{{  folder.name}}</option>
-
-             {% endfor %}
-         {% endif %}
-        </select>
-         Upload:<input type="file" name="path" size="30"/><br/>
-         Private:<input type="checkbox" name="private" />
-         Encrypted:<input type="checkbox" name="encrypted" /><br/>
-          <input type="submit" name="submit" value="Upload Report" />
-    </form>
 
 
 

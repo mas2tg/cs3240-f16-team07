@@ -55,6 +55,12 @@
 			.navbar {
 				/* removes line appearing under navbar */
 				border: 0;
+				text-align: center;
+			}
+			.navbar-center {
+				display: inline-block;
+				float: none;
+				vertical-align: top;
 			}
 			.footer {
 				position: absolute;
@@ -63,8 +69,14 @@
 				/* Set the fixed height of the footer here */
 				height: 45px;
 			}
-			.navbar .dropdown:hover .dropdown-menu {
+			.dropdown-mouseover:hover .dropdown-menu {
 				display: block;
+			}
+			.center-dropdown {
+				left: 50%;
+				right: auto;
+				text-align: center;
+				transform: translate(-50%, 0);
 			}
 	        .navbar-prof-pic-container {
 				background-color: black;
@@ -123,11 +135,12 @@
 			    	{% url 'home' as home_url %}
 			    	{% url 'reports:index' as reports_url %}
 			    	{% url 'groups' as groups_url %}
+			    	{% url 'search' as search_url %}
 			    	<li {% if home_url in request.path %}class="active"{% endif %}><a href="{{ home_url }}">Home</a></li>
 			    	<li {% if reports_url in request.path %}class="active"{% endif %}><a href="{{ reports_url }}">Reports</a></li>
 			    	
 			    	{% if user.groups.all %} <!-- User has groups -->
-			    	<li class="dropdown{% if groups_url in request.path %} active{% endif %}">
+			    	<li class="dropdown dropdown-mouseover {% if groups_url in request.path %} active{% endif %}">
 			    		<a href="{{ groups_url }}">Groups <span class="caret"></span></a>
         				<ul class="dropdown-menu">
 				    		{% for group in user.groups.all %}
@@ -143,6 +156,13 @@
 		    		{% endif %}
 
 			    </ul>
+
+			    <ul class="nav navbar-nav navbar-center">
+				    <li class="{% if search_url in request.path %} active{% endif %}">
+						<a href="{{ search_url }}"><b><span class="glyphicon glyphicon-search"></span></b></span></a>
+					</li>
+				</ul>
+
 			    {% endif %}
 
 			    <ul class="nav navbar-nav navbar-right">

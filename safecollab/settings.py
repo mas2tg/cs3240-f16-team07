@@ -60,7 +60,7 @@ MIDDLEWARE_CLASSES = (
 
 ROOT_URLCONF = 'safecollab.urls'
 LOGIN_URL = '/'
-LOGIN_REDIRECT_URL = '/home'
+LOGIN_REDIRECT_URL = '/search'
 
 WSGI_APPLICATION = 'safecollab.wsgi.application'
 
