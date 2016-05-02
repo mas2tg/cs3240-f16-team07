@@ -10,7 +10,9 @@ Owner of the File : {{reports.creator}}<br/>
     <form id="edit_report" enctype="multipart/form-data"  method="post" action="/reports/edit/{{ reports.name }}/">
             {% csrf_token %}
             File name: <input type="text" name="name" value="{{ reports.name }}" size="30" />
+
             <br />
+            Keyword: <input type="text" name="keyword" value="{{ reports.name }}" size="30" /><br/>
             Short Description: <input type="text" name="description" value="{{ reports.description }}" size="30" /><br/>
             Long Description: <input type="text" name="longDescription" value="{{ reports.longDescription }}" size="30" /><br/>
             Upload:<input multiple type="file" name="path" size="30"/>
