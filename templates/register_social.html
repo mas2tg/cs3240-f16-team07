@@ -26,13 +26,13 @@
 
     <div class="col-md-5 square-corners cool-panel">
         <div class="row text-center"><h4>Sign Up with {{ backend|title }} Account</h4></div>
-        <form id="user_form" method="post" action="/users/register" enctype="multipart/form-data">
+        <form id="user_form" method="post" action="/users/register-social" enctype="multipart/form-data">
 
             {% csrf_token %}
 
             {% with form=user_form %}
                 {% if form.non_field_errors %}
-                    <ul>
+                    <ul style="list-style-type: none;">
                         {% for error in form.non_field_errors %}
                             <li>{{ error }}</li>
                         {% endfor %}
@@ -44,7 +44,7 @@
                         <div>
                             {{ field.label_tag }} {{ field }}
                         </div>
-                        <div id="{{ field.auto_id }}_errors">
+                        <div id="{{ field.auto_id }}_errors" class="field-error">
                             {{ field.errors }}
                         </div>
                     </div>
@@ -53,7 +53,7 @@
 
             {% with form=profile_form %}
                 {% if form.non_field_errors %}
-                    <ul>
+                    <ul style="list-style-type: none;">
                         {% for error in form.non_field_errors %}
                             <li>{{ error }}</li>
                         {% endfor %}
@@ -65,7 +65,7 @@
                         <div>
                             {{ field.label_tag }} {{ field }}
                         </div>
-                        <div id="{{ field.auto_id }}_errors">
+                        <div id="{{ field.auto_id }}_errors" class="field-error">
                             {{ field.errors }}
                         </div>
                     </div>
