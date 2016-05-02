@@ -243,48 +243,48 @@ a.fa-links:focus {
 
 {% block body_block %}
 <div id="wrapper">
-            <a href="{% url 'home' %}" class="fa-links">
-                <div class="thumbnail tile tile-medium tile-teal">
-                    <h1>Home</h1>
-                        <i class="fa fa-3x fa-home"></i>
-                </div>
-            </a>
-            <a href="{% url 'search' %}" class="fa-links">
-                <div class="thumbnail tile tile-medium tile-purple">
-                    <h1>Search</h1>
-                        <i class="fa fa-3x fa-search"></i>
-                </div>
-            </a>
-            <a href="{% url 'reports:index' %}" class="fa-links">
-                <div class="thumbnail tile tile-medium tile-midnight-blue">
-                    <h1>Reports</h1>
-                        <i class="fa fa-3x fa-file"></i>
-                </div>
-            </a>
-            <a href="{% url 'groups' %}" class="fa-links">
-                <div class="thumbnail tile tile-medium tile-sun-flower">
-                    <h1>Groups</h1>
-                        <i class="fa fa-3x fa-users"></i>
-                </div>
-            </a>
-            <a href="{% url 'users:view-profile' user_id=request.user.id %}" class="fa-links">
-                <div class="thumbnail tile tile-medium tile-pumpkin">
-                    <h1>Profile</h1>
-                        <i class="fa fa-3x fa-user"></i>
-                </div>
-            </a>
-            <a href="{% url 'inbox:index' %}" class="fa-links">
-                <div class="thumbnail tile tile-medium tile-belize-hole">
-                    <h1>Inbox</h1>
-                        <i class="fa fa-3x fa-comment"></i>
-                </div>
-            </a>
-            <a href="{% url 'users:logout' %}" class="fa-links">
-                <div class="thumbnail tile tile-medium tile-red">
-                    <h1>Logout</h1>
-                        <i class="fa fa-3x fa-sign-out"></i>
-                </div>
-            </a>
+    <a href="{% url 'home' %}" class="fa-links">
+        <div class="thumbnail tile tile-medium tile-teal">
+            <h1>Home</h1>
+                <i class="fa fa-3x fa-home"></i>
+        </div>
+    </a>
+    <a href="{% url 'search' %}" class="fa-links">
+        <div class="thumbnail tile tile-medium tile-purple">
+            <h1>Search</h1>
+                <i class="fa fa-3x fa-search"></i>
+        </div>
+    </a>
+    <a href="{% url 'reports:index' %}" class="fa-links">
+        <div class="thumbnail tile tile-medium tile-midnight-blue">
+            <h1>Reports</h1>
+                <i class="fa fa-3x fa-file"></i>
+        </div>
+    </a>
+    <a href="{% url 'groups' %}" class="fa-links">
+        <div class="thumbnail tile tile-medium tile-sun-flower">
+            <h1>Groups</h1>
+                <i class="fa fa-3x fa-users"></i>
+        </div>
+    </a>
+    <a href="{% url 'users:view-profile' user_id=request.user.id %}" class="fa-links">
+        <div class="thumbnail tile tile-medium tile-pumpkin">
+            <h1>Profile</h1>
+                <i class="fa fa-3x fa-user"></i>
+        </div>
+    </a>
+    <a href="{% url 'inbox:index' %}" class="fa-links">
+        <div class="thumbnail tile tile-medium tile-belize-hole">
+            <h1>Inbox</h1>
+                <i class="fa fa-3x fa-comment"></i>
+        </div>
+    </a>
+    <a href="{% url 'users:logout' %}" class="fa-links">
+        <div class="thumbnail tile tile-medium tile-red">
+            <h1>Logout</h1>
+                <i class="fa fa-3x fa-sign-out"></i>
+        </div>
+    </a>
 </div>
 
 {% endblock %}
@@ -298,7 +298,7 @@ a.fa-links:focus {
         var tiles_per_row = Math.floor(wrapper_width/tile_width);
         var tiles_to_add = tiles_per_row-(num_tiles%tiles_per_row)
         for (var i = 0; i < tiles_to_add; i++) {
-            $('#wrapper').append('<a href="#" class="fa-links dumby-block"><div class="thumbnail tile tile-medium tile-asbestos"></div></a>');
+            $('#wrapper').append('\n<a href="#" class="fa-links dumby-block"><div class="thumbnail tile tile-medium tile-asbestos"></div></a>');
         }
     }
     $(document).ready(function() {
