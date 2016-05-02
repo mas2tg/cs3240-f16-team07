@@ -32,7 +32,7 @@
                         <td>{{ user.first_name }} {{ user.last_name }}</td>
                         <td class="rowlink-skip"><a href="{% url 'users:remove-user-from-group' group_id=group.id user_id=user.id %}">Remove</a></td>
                     </tr>
-                    {% endfor %}               
+                    {% endfor %}
                 </tbody>
             </table>
 

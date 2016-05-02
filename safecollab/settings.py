@@ -50,16 +50,17 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'users.middleware.ForceLogoutMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'users.middleware.ForceLogoutMiddleware',
 )
 
 ROOT_URLCONF = 'safecollab.urls'
 LOGIN_URL = '/'
-LOGIN_REDIRECT_URL = '/home'
+LOGIN_REDIRECT_URL = '/search'
 
 WSGI_APPLICATION = 'safecollab.wsgi.application'
 

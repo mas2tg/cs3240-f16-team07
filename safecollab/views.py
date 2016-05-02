@@ -36,15 +36,93 @@ def fda_index(request):
 
 @login_required
 def home(request):
-	obj_list = Folder.objects.filter(creator=request.user)
-	return render(request, 'home.html', {
-		'form': ReportForm(),
-		'folders': obj_list,
-		})
+	return render(request, 'home.html', {})
+
+def strToOperator(s):
+	if s == 'AND':
+		return '&'
+	if s == 'OR':
+		return '|'
+	return '&'
+def refine(query, current_string, current_mode, not_mode, params):
+	if len(current_string) > 0:
+		query_part = None
+		namespace = {'Q': Q, 'query_part':query_part}
+		exec('query_part = Q(' + params[0] + '__icontains="' + current_string + '")', namespace)
+		query_part = namespace['query_part']
+		for param in params[1:]:
+			namespace = {'Q': Q, 'query_part':query_part}
+			exec('query_part |= Q(' + param + '__icontains="' + current_string + '")', namespace)
+			query_part = namespace['query_part']
+		namespace = {'query': query, 'query_part':query_part}
+		exec('query ' + strToOperator(current_mode) + '= ' + ('~' if not_mode else '') + 'query_part', namespace)
+		query = namespace['query']
+	return query
+def make_query(raw, params):
+	current_string = ''
+	current_mode = 'AND'
+	not_mode = False
+	query = Q()
+	for token in raw.split():
+		if token == 'AND':
+			query = refine(query, current_string, current_mode, not_mode, params)
+			current_string = ''
+			not_mode = False
+			current_mode = 'AND'
+			continue
+		if token == 'OR':
+			query = refine(query, current_string, current_mode, not_mode, params)
+			current_string = ''
+			not_mode = False
+			current_mode = 'OR'
+			continue
+		if token == 'NOT':
+			not_mode = True
+			continue
+		if current_string == '': current_string = token
+		else: current_string += ' ' + token
+	return refine(query, current_string, current_mode, not_mode, params)
+def search(request):
+	if request.method == "POST":
+		query_type = request.POST.get('query_type','All')
+		raw_query = request.POST.get('query','')
+		
+		context_dict = { 'query_type': query_type }
+
+		user_params = ['username', 'first_name', 'last_name', 'email']
+		report_params = ['name', 'description', 'longDescription']
+		group_params = ['name']
+
+		if query_type == 'All':
+			context_dict['user_results'] = User.objects.filter( make_query(raw_query, user_params) )
+			context_dict['report_results'] = Report.objects.filter( make_query(raw_query, report_params) )
+			context_dict['group_results'] = Group.objects.filter( make_query(raw_query, group_params) )
+			if not request.user.has_perm('users.site_manager'):
+				context_dict['group_results'] &= request.user.groups.all()
+
+		elif query_type == 'Users':
+			context_dict['user_results'] = User.objects.filter( make_query(raw_query, user_params) )
+		elif query_type == 'Reports':
+			context_dict['report_results'] = Report.objects.filter( make_query(raw_query, report_params) )
+		elif query_type == 'Groups':
+			context_dict['group_results'] = Group.objects.filter( make_query(raw_query, group_params) )
+			if not request.user.has_perm('users.site_manager'):
+				context_dict['group_results'] &= request.user.groups.all()
+		else:
+			context_dict['user_results'] = User.objects.filter( make_query(raw_query, user_params) )
+			context_dict['report_results'] = Report.objects.filter( make_query(raw_query, report_params) )
+			context_dict['group_results'] = Group.objects.filter( make_query(raw_query, group_params) )
+			if not request.user.has_perm('users.site_manager'):
+				context_dict['group_results'] &= request.user.groups.all()
+
+		return render(request, 'search.html', context_dict)
+	
+	return render(request, 'search.html', {})
 
 def groups(request):
 	group_ids = set([ group.id for group in request.user.groups.all() ])
 	context_dict = {
+		'favorite_groups': UserProfile.objects.get(user__id=request.user.id).favorite_groups.all(),
 		'other_groups': Group.objects.filter(~Q(id__in=group_ids)),
 	}
 	return render(request, 'groups.html', context_dict)

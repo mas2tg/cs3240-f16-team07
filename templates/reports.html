@@ -1,6 +1,28 @@
 {% extends 'base.html' %}
 
 {% block content_block %}
+
+<strong>Add a Report!</strong>
+<form id="report_form" enctype="multipart/form-data"  method="post" action="{% url 'reports:add-report' %}">
+    {% csrf_token %}
+    File name: <input type="text" name="name" value="" size="30" />
+    <br />
+     Short Description: <input type="text" name="description" value="" size="30" /><br/>
+     Long Description: <input type="text" name="longDescription" value="" size="30" /><br/>
+     folder:  <select name="type">
+     {% if folders %}
+     {% for folder in folders %}
+        <option value="{{ folder.name }}">{{  folder.name}}</option>
+
+         {% endfor %}
+     {% endif %}
+    </select>
+    Upload:<input type="file" name="path" size="30"/><br/>
+    Private:<input type="checkbox" name="private" />
+    Encrypted:<input type="checkbox" name="encrypted" /><br/>
+    <input type="submit" name="submit" value="Upload Report" />
+</form>
+
 <h1>{{ test }}</h1>
  
     <form method="GET" action="">
@@ -24,9 +46,9 @@
     {% if reports %}
 
     <table border="1" style="width:100%">
-    <tr style="background-color:grey"><td>Report Name</td><td>Report Description</td><td>Download</td></tr>
+    <tr style="background-color:grey"><td>Report Name</td><td>Report Description</td></tr>
             {% for report in reports %}
-            <tr><td><a href="/reports/detail/{{ report.name }}">{{ report.name }}</a></td><td>{{ report.description }}</td><td><a href="/reports/{{ report.path }}">click here to download</a></td></tr>
+            <tr><td><a href="/reports/detail/{{ report.name }}">{{ report.name }}</a></td><td>{{ report.description }}</td></tr>
 
             {% endfor %}
       </table>
@@ -40,10 +62,10 @@
     {% if folders %}
 
     <table border="1" style="width:100%">
-      <tr style="background-color:grey"><td>Folder Name</td></tr>
+      <tr style="background-color:grey"><td>Folder Name</td><td></td></tr>
       
             {% for folder in folders %}
-            <tr><td><a href="/reports/{{ folder.name }}">{{ folder.name }}</a></td></tr>
+            <tr><td><a href="/reports/{{ folder.name }}">{{ folder.name }}</a></td><td><form action="/reports/delete_folder/{{ folder.id }}"><input type="submit"  align ="center" value="Delete Folder"></form></td></tr>
 
             {% endfor %}
       </table>

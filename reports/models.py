@@ -21,13 +21,12 @@ class Report(models.Model):
     longDescription = models.CharField(max_length=1000, default='')
     private = models.BooleanField(default=False)
     time = models.DateTimeField(default=datetime.now)
-    path = models.FileField(storage=FileSystemStorage(location=settings.MEDIA_ROOT), upload_to='attachments',
-                            default=None, null=True)
     folder = models.ForeignKey(Folder, related_name='folder',null=True,blank=True)
 
-
-
-
+class File(models.Model):
+     report = models.ForeignKey(Report, related_name='files',null=True,blank=True)
+     path = models.FileField(storage=FileSystemStorage(location=settings.MEDIA_ROOT), upload_to='attachments',
+                            default=None, null=True)
 
 class ReportForm(forms.ModelForm):
     class Meta:
@@ -36,8 +35,15 @@ class ReportForm(forms.ModelForm):
             "name",
             "description",
             "longDescription",
-            "path",
+            #"path",
             "encrypted",
             "private",
 
+        )
+
+class FileForm(forms.ModelForm):
+    class Meta:
+        model = File
+        fields = (
+            "path",
         )

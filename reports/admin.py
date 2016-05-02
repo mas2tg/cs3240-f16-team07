@@ -1,5 +1,5 @@
 from django.contrib import admin
-from reports.models import Report, Folder
+from reports.models import Report, Folder, File
 
 class ReportAdmin(admin.ModelAdmin):
     list_display = ('name',)
@@ -14,6 +14,12 @@ class FolderAdmin(admin.ModelAdmin):
 
 # Update the registeration to include this customised interface
 admin.site.register(Folder, FolderAdmin)
+
+
+class FileAdmin(admin.ModelAdmin):
+    list_display = ('path','report')
+
+admin.site.register(File, FileAdmin)
 
 
 #

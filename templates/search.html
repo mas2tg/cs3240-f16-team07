@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+
+{% block css_block %}
+<style>
+    div .alert p strong {
+        font-weight: 900;
+    }
+</style>
+{% endblock %}
+
+{% block content_block %}
+
+    <form class="form form-horizontal" role="form" method="post" action="{% url 'search' %}">
+        {% csrf_token %}
+        <div class="col-md-12" style="padding-left:0;padding-right:0;">
+            <div class="input-group">
+                <select name="query_type" class="form-control input-lg" style="width:30%;border-right:none;">
+                    <option {% if not query_type or query_type == 'All' %}selected="selected"{% endif %}>All</option>
+                    <option {% if query_type and query_type == 'Users' %}selected="selected"{% endif %}>Users</option>
+                    <option {% if query_type and query_type == 'Reports' %}selected="selected"{% endif %}>Reports</option>
+                    <option {% if query_type and query_type == 'Groups' %}selected="selected"{% endif %}>Groups</option>
+                </select>
+                <input type="text" name="query" class="form-control input-lg" style="width:70%;" placeholder="Search" />
+                <span class="input-group-btn">
+                    <button class="btn btn-lg btn-default search-button" type="submit">
+                        <i class="glyphicon glyphicon-search"></i>
+                    </button>
+                </span>
+            </div>
+        </div>
+    </form>
+
+    <div class="row"><br/><br/><br/></div>
+    {% if not query_type %}
+    <div class="row text-center">
+        <span class="glyphicon glyphicon-arrow-up" style="font-size: 5.75em;"></span><br/><br/>
+        <div class="alert alert-warning" style="font-size: 3em;">
+            <p><strong>“</strong> It probably isn't worth finding if you don't have to <b>search</b> for it. <strong>”</strong></p>
+        </div>
+    </div>
+    {% else %}
+        {% if user_results or report_results or group_results %}
+
+            <ul class="nav nav-pills nav-stacked col-md-3">
+                {% if query_type == 'All' %}
+                <li class="active"><a data-toggle="pill" href="#all">All</a></li>
+                <li><a data-toggle="pill" href="#users">Users</a></li>
+                <li><a data-toggle="pill" href="#reports">Reports</a></li>
+                <li><a data-toggle="pill" href="#groups">Groups</a></li>
+                {% elif query_type == 'Users' %}
+                <li class="active"><a data-toggle="pill" href="#users">Users</a></li>
+                {% elif query_type == 'Reports' %}
+                <li class="active"><a data-toggle="pill" href="#reports">Reports</a></li>
+                {% elif query_type == 'Groups' %}
+                <li class="active"><a data-toggle="pill" href="#groups">Groups</a></li>}
+                {% endif %}
+            </ul>
+
+            <div class="tab-content col-md-9">
+
+                <div id="all" class="tab-pane fade{% if query_type == 'All' %} in active{% endif %}">
+                    <table data-toggle="table">
+                        <thead>
+                            <tr>
+                                <th data-sortable="true">Type</th>
+                                <th data-sortable="true">Name</th>
+                                <th data-sortable="true">Info</th>
+                            </tr>
+                        </thead>
+                        <tbody data-link="row" class="rowlink">
+                            {% for user in user_results|dictsort:'username' %}
+                                <tr>
+                                    <td><a href="{% url 'users:view-profile' user_id=user.id %}"></a>User</td>
+                                    <td>{{ user.username }}</td>
+                                    <td>{{ user.first_name }} {{ user.last_name }}<small class="text-muted"> (name)</small></td>
+                                </tr>
+                            {% endfor %}
+                            {% for report in report_results|dictsort:'creator' %}
+                                <tr>
+                                    <td><a href="{% url 'reports:detail' file_name=report.name %}">Report</td>
+                                    <td>{{ report.name }}</td>
+                                    <td></a>{{ report.creator.username }}<small class="text-muted"> (creator)</small></td>
+                                </tr>
+                            {% endfor %}
+                            {% for group in group_results|dictsort:'name' %}
+                                <tr>
+                                    <td><a href="{% url 'group-summary' group_id=group.id %}"></a>Group</td>
+                                    <td>{{ group.name }}</td>
+                                    <td>{{ group.user_set.all|length }}<small class="text-muted"> (population)</small></td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="users" class="tab-pane fade{% if query_type == 'Users' %} in active{% endif %}">
+                    {% if user_results %}
+                    <table data-toggle="table">
+                        <thead>
+                            <tr>
+                                <th data-sortable="true">Username</th>
+                                <th data-sortable="true">First Name</th>
+                                <th data-sortable="true">Last Name</th>
+                                <th data-sortable="true">Email</th>
+                            </tr>
+                        </thead>
+                        <tbody data-link="row" class="rowlink">
+                            {% for user in user_results|dictsort:'username' %}
+                                <tr>
+                                    <td><a href="{% url 'users:view-profile' user_id=user.id %}"></a>{{ user.username }}</td>
+                                    <td>{{ user.first_name }}</td>
+                                    <td>{{ user.last_name }}</td>
+                                    {% if user.email %}<td class="rowlink-skip"><a href="mailto:{{ user.email }}">{{ user.email }}</a></td>{% else %}<td></td>{% endif %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    No user results.
+                    {% endif %}
+
+                </div>
+
+                <div id="reports" class="tab-pane fade{% if query_type == 'Reports' %} in active{% endif %}">
+                    {% if report_results %}
+                    <table data-toggle="table">
+                        <thead>
+                            <tr>
+                                <th data-sortable="true">Creator</th>
+                                <th data-sortable="true">Name</th>
+                                <th data-sortable="true">Description</th>
+                                <th data-sortable="true">Private</th>
+                            </tr>
+                        </thead>
+                        <tbody data-link="row" class="rowlink">
+                            {% for report in report_results|dictsort:'creator.username' %}
+                                <tr>
+                                    <td><a href="{% url 'reports:detail' file_name=report.name %}"></a>{{ report.creator.username }}</td>
+                                    <td>{{ report.name }}</td>
+                                    <td>{{ report.description }}</td>
+                                    <td>{% if report.private %}✓{% else %} {% endif %}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    No report results.
+                    {% endif %}
+                </div>
+
+                <div id="groups" class="tab-pane fade{% if query_type == 'Groups' %} in active{% endif %}">
+
+                    {% if group_results %}
+                    <table data-toggle="table">
+                        <thead>
+                            <tr>
+                                <th data-sortable="true">Name</th>
+                                <th data-sortable="true"># of Members</th>
+                            </tr>
+                        </thead>
+                        <tbody data-link="row" class="rowlink">
+                            {% for group in group_results|dictsort:'name' %}
+                                <tr>
+                                    <td><a href="{% url 'group-summary' group_id=group.id %}"></a>{{ group.name }}</td>
+                                    <td>{{ group.user_set.all|length }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    No group results.
+                    {% endif %}
+
+                </div>
+
+            </div>
+        {% else %}
+        No results.
+        {% endif %}
+    {% endif %}
+
+
+{% endblock %}
