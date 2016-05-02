@@ -54,6 +54,26 @@ class UserForm(forms.ModelForm):
 		model = User
 		fields = ('username', 'password', 'first_name', 'last_name', 'email')
 
+# username/password fields not required
+class EditUserForm(forms.ModelForm):
+	username = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'form-control'}))
+	password = forms.CharField(required=True, widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+	first_name = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
+	last_name = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
+	email = forms.CharField(required=False, widget=forms.EmailInput(attrs={'class': 'form-control'}))
+
+	def clean_username(self):
+		username = self.cleaned_data.get('username', '')
+		if User.objects.filter(username=username).exists():
+			raise ValidationError('Username "' + username + '" taken.")')
+		return username
+	
+	class Meta:
+		model = User
+		fields = ('username', 'password', 'first_name', 'last_name', 'email')
+
+
+
 class UserProfileForm(forms.ModelForm):
 	website = forms.EmailField(required=False, widget=forms.URLInput(attrs={'class': 'form-control'}))
 	# Must explicitly say that field is not required in order for ClearableFileInput to render with clear checkbox

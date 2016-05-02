@@ -9,6 +9,8 @@ from django.conf import settings
 from django.core import serializers
 
 def index(request):
+	if request.user and request.user.is_authenticated():
+		return HttpResponseRedirect('/home/')
 	context_dict = {
 		'user_form': UserForm(),
 		'profile_form': UserProfileForm(),

@@ -3,7 +3,7 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group, Permission
-from users.models import UserForm, UserProfile, UserProfileForm
+from users.models import UserForm, EditUserForm, UserProfile, UserProfileForm
 from django.views.decorators.csrf import csrf_exempt
 from django.forms.models import model_to_dict
 from social.backends.utils import load_backends
@@ -483,9 +483,10 @@ def view_profile(request, user_id, **kwargs):
 
 	context_dict = {}
 
-	if user_id == str(request.user.id):
+	print(user_id==request.user.id)
+	if int(user_id) == int(request.user.id):
 		context_dict = {
-			'user_form': UserForm(initial=model_to_dict(user)),
+			'user_form': EditUserForm(initial=model_to_dict(user)),
 			'profile_form': UserProfileForm(initial=model_to_dict(profile)),
 			'available_backends': load_backends(settings.AUTHENTICATION_BACKENDS),
 			'editing': 'editing' in kwargs and kwargs['editing'] == 'editing',
@@ -494,7 +495,7 @@ def view_profile(request, user_id, **kwargs):
 	context_dict['disp_user_is_sm'] = (user.is_superuser) or (Permission.objects.get(codename='site_manager') in user.user_permissions.all()) #user.has_perm('users.site_manager')
 
 	if 'error_messages' in kwargs:
-		context_dict['error_messages'] = error_messages
+		context_dict['error_messages'] = kwargs['error_messages']
 
 	return render(request, 'profile.html', context_dict)
 
@@ -515,7 +516,11 @@ def edit_profile(request):
 		else:
 			profile = query_set[0]
 
+
 		if 'username' in request.POST and request.POST.get('username'):
+			if User.objects.filter(username=str(request.POST.get('username'))).exists():
+				error_messages = ['Username "' + str(request.POST.get('username')) + '" is already taken.']
+				return view_profile(request, request.user.id, error_messages=error_messages)
 			user.username = request.POST.get('username')
 		if 'password' in request.POST and request.POST.get('password'):
 			user.set_password(request.POST.get('password'))
