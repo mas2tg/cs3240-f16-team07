@@ -18,6 +18,12 @@ def index(request):
 	}
 	return render(request, 'index.html', context_dict)
 
+def about(request):
+	return render(request, 'about.html')
+
+def contact(request):
+	return render(request, 'contact.html')
+
 def fda_index(request):
         username = request.GET.get('username',default="Do not exist")
         username = User.objects.filter(username=username)
