@@ -1,5 +1,13 @@
 {% extends 'base.html' %}
 
+{% block css_block %}
+<style>
+    div .alert p strong {
+        font-weight: 900;
+    }
+</style>
+{% endblock %}
+
 {% block content_block %}
 
     <form class="form form-horizontal" role="form" method="post" action="{% url 'search' %}">
@@ -22,10 +30,15 @@
         </div>
     </form>
 
-    {% if query_type %}
-
-        <div class="row"><br/><br/><br/></div>
-
+    <div class="row"><br/><br/><br/></div>
+    {% if not query_type %}
+    <div class="row text-center">
+        <span class="glyphicon glyphicon-arrow-up" style="font-size: 5.75em;"></span><br/><br/>
+        <div class="alert alert-warning" style="font-size: 3em;">
+            <p><strong>“</strong> It probably isn't worth finding if you don't have to <b>search</b> for it. <strong>”</strong></p>
+        </div>
+    </div>
+    {% else %}
         {% if user_results or report_results or group_results %}
 
             <ul class="nav nav-pills nav-stacked col-md-3">

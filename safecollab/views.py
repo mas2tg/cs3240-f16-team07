@@ -42,11 +42,11 @@ def refine(query, current_string, current_mode, not_mode, params):
 	if len(current_string) > 0:
 		query_part = None
 		namespace = {'Q': Q, 'query_part':query_part}
-		exec('query_part = Q(' + params[0] + '__contains="' + current_string + '")', namespace)
+		exec('query_part = Q(' + params[0] + '__icontains="' + current_string + '")', namespace)
 		query_part = namespace['query_part']
 		for param in params[1:]:
 			namespace = {'Q': Q, 'query_part':query_part}
-			exec('query_part |= Q(' + param + '__contains="' + current_string + '")', namespace)
+			exec('query_part |= Q(' + param + '__icontains="' + current_string + '")', namespace)
 			query_part = namespace['query_part']
 		namespace = {'query': query, 'query_part':query_part}
 		exec('query ' + strToOperator(current_mode) + '= ' + ('~' if not_mode else '') + 'query_part', namespace)
@@ -58,19 +58,19 @@ def make_query(raw, params):
 	not_mode = False
 	query = Q()
 	for token in raw.split():
-		if token.upper() == 'AND':
+		if token == 'AND':
 			query = refine(query, current_string, current_mode, not_mode, params)
 			current_string = ''
 			not_mode = False
 			current_mode = 'AND'
 			continue
-		if token.upper() == 'OR':
+		if token == 'OR':
 			query = refine(query, current_string, current_mode, not_mode, params)
 			current_string = ''
 			not_mode = False
 			current_mode = 'OR'
 			continue
-		if token.upper() == 'NOT':
+		if token == 'NOT':
 			not_mode = True
 			continue
 		if current_string == '': current_string = token
