@@ -9,9 +9,8 @@ from django.conf import settings
 from django.core import serializers
 
 def index(request):
-	if request.user.is_authenticated():
-		return HttpResponseRedirect('/home')
-
+	if request.user and request.user.is_authenticated():
+		return HttpResponseRedirect('/home/')
 	context_dict = {
 		'user_form': UserForm(),
 		'profile_form': UserProfileForm(),
@@ -82,6 +81,7 @@ def make_query(raw, params):
 		if current_string == '': current_string = token
 		else: current_string += ' ' + token
 	return refine(query, current_string, current_mode, not_mode, params)
+@login_required
 def search(request):
 	if request.method == "POST":
 		query_type = request.POST.get('query_type','All')
@@ -119,19 +119,29 @@ def search(request):
 	
 	return render(request, 'search.html', {})
 
-def groups(request):
+@login_required
+def groups(request, **kwargs):
 	group_ids = set([ group.id for group in request.user.groups.all() ])
 	context_dict = {
 		'favorite_groups': UserProfile.objects.get(user__id=request.user.id).favorite_groups.all(),
 		'other_groups': Group.objects.filter(~Q(id__in=group_ids)),
 	}
+
+	if 'error_messages' in kwargs:
+		context_dict['error_messages'] = kwargs['error_messages']
+
 	return render(request, 'groups.html', context_dict)
 
-def group_summary(request, group_id):
+@login_required
+def group_summary(request, group_id, **kwargs):
 	query_set = Group.objects.filter(id=int(group_id))
 	if query_set.exists():
 		group = query_set[0]
 		users = group.user_set.all()
+
+		if not request.user.has_perm('users.site_manager') and request.user not in users:
+			error_messages = ['You do not have permission to view group ' + str(group.name) + '.']
+			return safecollab.views.group(request, error_messages=error_messages)
 
 		context_dict = {
 			'group': group,
@@ -139,6 +149,9 @@ def group_summary(request, group_id):
 			'is_member': request.user.groups.filter(id=int(group_id)).exists(),
 		}
 		
+		if 'error_messages' in kwargs:
+			context_dict['error_messages'] = kwargs['error_messages']
+
 		return render(request, 'group_summary.html', context_dict)
 	else:
 		return HttpResponseRedirect('/groups')

@@ -52,6 +52,13 @@
 			    -o-background-size: cover;
 			    background-size: cover;
 			}
+			/* remove div container wrapping navbar to remove margins */
+			/*.navbar-wrapper, .navbar, .navbar-inner, .container{
+				margin-left:0;
+				margin-right:0;
+				padding-left:10px;
+				padding-right:10px;
+			}*/
 			.navbar {
 				/* removes line appearing under navbar */
 				border: 0;
@@ -116,6 +123,24 @@
 	            color:white;
 	        }
 
+	        .error-msg {
+	        	margin-bottom: 0;
+				-webkit-border-radius: 0 !important;
+				-moz-border-radius: 0 !important;
+				border-radius: 0 !important;
+				padding-top: 2px;
+				padding-bottom: 2px;
+	        }
+	        .field-error {
+	        	color: red;
+	        }
+        	.field-error ul {
+        		list-style-type: none;
+        		padding: 0;
+        	}
+        	.field-error ul, li {
+        		display: inline;
+        	}
     	</style>
 
     	{% block css_block %}{% endblock %}
@@ -233,6 +258,13 @@
     				<!-- <li><a href="#"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li> -->
     			</ul>
 			</div>
+			{% if error_messages %}
+				{% for error_msg in error_messages %}
+					<div class="alert alert-danger error-msg">
+						<div class="container"><span class="glyphicon glyphicon-exclamation-sign"></span> {{ error_msg | safe }}</div>
+					</div>
+				{% endfor %}
+			{% endif %}
 		</nav>
 
         <div class="container">

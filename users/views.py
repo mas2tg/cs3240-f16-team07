@@ -3,12 +3,14 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group, Permission
-from users.models import UserForm, UserProfile, UserProfileForm
+from users.models import UserForm, EditUserForm, UserProfile, UserProfileForm
 from django.views.decorators.csrf import csrf_exempt
 from django.forms.models import model_to_dict
 from social.backends.utils import load_backends
 from django.conf import settings
 from django.template.loader import render_to_string
+from django.db.models import Q
+import safecollab
 
 ###############################
 #####                     #####
@@ -59,12 +61,20 @@ def register(request):
 		# Print problems to the terminal.
 		# They'll also be shown to the user.
 		else:
-			print(user_form.errors, profile_form.errors)
-			return HttpResponse('Errors with form')
+			context_dict = {
+				'user_form': user_form,
+				'profile_form': profile_form,
+			}
+			return render(request, 'index.html', context_dict)
 
 	# Not a HTTP POST, this should never happen
 	else:
-		return HttpResponse('Error in register() see users.views')
+		context_dict = {
+			'user_form': UserForm(),
+			'profile_form': UserProfileForm(),
+			'error_messages': ['Invalid HTTP request.']
+		}
+		return render(request,'index.html',context_dict)
 
 def register_social(request):
 	if request.method == 'POST':
@@ -108,8 +118,14 @@ def register_social(request):
 		# They'll also be shown to the user.
 		else:
 			print(user_form.errors, profile_form.errors)
-			return HttpResponse('Errors with form')
 
+			context_dict = {
+				'user_form': user_form,
+				'profile_form': profile_form,
+				'backend': request.session['partial_pipeline']['backend'],
+			}
+
+			return render(request, 'register_social.html', context_dict)
 
 	else:
 		partial_user_data = request.session.get('partial_user_data')
@@ -138,13 +154,28 @@ def associate_social(request):
 				return redirect('social:complete', backend=backend)
 			else:
 				# An inactive account was used...
-				return HttpResponse("Inactive account used. Social auth association failed.")
+				context_dict = {
+					'user_form': UserForm(),
+					'profile_form': UserProfileForm(),
+					'error_messages': ['Inactive account used. Social auth association failed.']
+				}
+				return render(request,'index.html',context_dict)
 		else:
 			# Bad login credentials.
-			return HttpResponse("Invalid login details supplied. Social auth association failed.")
+			context_dict = {
+				'user_form': UserForm(),
+				'profile_form': UserProfileForm(),
+				'error_messages': ['Invalid login details supplied. Social auth association failed.']
+			}
+			return render(request,'index.html',context_dict)
 	else:
 		# This should not happen.
-		return HttpResponse('Error in associate_social() see users.views')
+		context_dict = {
+			'user_form': UserForm(),
+			'profile_form': UserProfileForm(),
+			'error_messages': ['An error occurred during social auth association.']
+		}
+		return render(request,'index.html',context_dict)
 
 def user_login(request):
 	# If the request is a HTTP POST, try to pull out the relevant information.
@@ -173,15 +204,29 @@ def user_login(request):
 				return HttpResponseRedirect('/home')
 			else:
 				# An inactive account was used - no logging in!
-				return HttpResponse("Your SafeCollab account is disabled.")
+				context_dict = {
+					'user_form': UserForm(),
+					'profile_form': UserProfileForm(),
+					'error_messages': ['Your SafeCollab account has been disabled.']
+				}
+				return render(request,'index.html',context_dict)
 		else:
 			# Bad login details were provided. So we can't log the user in.
-			print ("Invalid login details: {0}, {1}".format(username, password))
-			return HttpResponse("Invalid login details supplied.")
+			context_dict = {
+				'user_form': UserForm(),
+				'profile_form': UserProfileForm(),
+				'error_messages': ['Invalid login details supplied.']
+			}
+			return render(request,'index.html',context_dict)
 
 	# Not a HTTP POST, this should never happen
 	else:
-		return HttpResponse('Error in user_login() see users.views')
+		context_dict = {
+			'user_form': UserForm(),
+			'profile_form': UserProfileForm(),
+			'error_messages': ['Invalid HTTP request.']
+		}
+		return render(request,'index.html',context_dict)
 
 
 @csrf_exempt
@@ -229,10 +274,12 @@ def grant_sm(request, user_id):
 		user = query_set[0]
 		permission = Permission.objects.get(codename='site_manager')
 		if permission in user.user_permissions.all():
+
 			return HttpResponse('User %s is already a site manager'%(user.username))
 		user.user_permissions.add(permission)
 		return HttpResponseRedirect('/users/'+str(user_id)+'/')
 	else:
+
 		return HttpResponse('User not found.')
 
 @login_required
@@ -303,33 +350,44 @@ def create_group(request):
 		new_group, created = Group.objects.get_or_create(name=group_name)
 		if not created:
 			# Group already exists under that name
-			return HttpResponse('Group under name "' + group_name + '" already exists. Click <a href="/groups?id=' + new_group.id + '">here</a> for group summary.')
+			error_messages = ['Group under name "' + group_name + '" already exists. Click <a href="/groups/' + str(new_group.id) + '/">here</a> for group summary.']
+			safecollab.views.groups(request, error_messages=error_messages)
 
 		current_user.groups.add(new_group)
 		
 		return HttpResponseRedirect('/groups/'+str(new_group.id)+'/')
 	return HttpResponse('Inappropriate arrival at /create-group/')
 
+@login_required
 def add_user_to_group(request):
 	if request.method == 'POST':
 		username = request.POST.get('username')
 		group_id = request.POST.get('group_id')
 		
-		group = Group.objects.get(id=int(group_id))
+		query_set = Group.objects.filter(id=int(group_id))
+		if not query_set.exists():
+			error_messages = ['Group not found.']
+			return safecollab.views.groups(request, error_messages=error_messages)
+		group = query_set[0]
 
 		# check if current user has permission to add users to group
 		if request.user.has_perm('users.site_manager') or request.user.groups.filter(id=int(group_id)).exists():
-			user = User.objects.get(username=username)
-			# TODO: add check for whether group/user exists
+			query_set = User.objects.filter(username=username)
+			if not query_set.exists():
+				error_messages = ['User not found.']
+				return safecollab.views.group_summary(request, int(group_id), error_messages=error_messages)
 
+			user = query_set[0]
 			user.groups.add(group)
 
 			return HttpResponseRedirect('/groups/' + group_id + '/')
 		else:
-			return HttpResponse('You do not have permission to add users to this group.')
+			error_messages = ['You do not have permission to add users to this group.']
+			return safecollab.views.group(request, int(group_id), error_messages=error_messages)
 
 	return HttpResponse('Inappropriate arrival at /add-user-to-group/')
 
+@login_required
 def remove_user_from_group(request, group_id, user_id):
 	# try to find user
 	query_set = User.objects.filter(id=int(user_id))
@@ -351,10 +409,13 @@ def remove_user_from_group(request, group_id, user_id):
 			else:
 				return HttpResponseRedirect('/groups/'+str(group_id)+'/')
 		else:
-			return HttpResponse('Group not found.')
+			error_messages = ['Group not found.']
+			return safecollab.views.groups(request, error_messages=error_messages)
 	else:
-		return HttpResponse('User not found.')
+		error_messages = ['User not found.']
+		return safecollab.views.group_summary(request, int(group_id), error_messages=error_messages)
 
+@login_required
 def favorite_group(request):
 	if request.is_ajax() and request.method == 'POST':
 		group_id = request.POST.get('group_id')
@@ -375,6 +436,7 @@ def favorite_group(request):
 		# This should never happen
 		return HttpResponse('Improper arrival at favorite_group, see users.views')
 
+@login_required
 def unfavorite_group(request):
 	if request.is_ajax() and request.method == 'POST':
 		group_id = request.POST.get('group_id')
@@ -407,7 +469,7 @@ def unfavorite_group(request):
 def view_profile(request, user_id, **kwargs):
 	query_set = User.objects.filter(id=user_id)
 	if not query_set.exists():
-		return HttpResponse('User with user_id='+user_id+' could not be found')
+		return view_profile(request, request.user.id, error_messages=['User with user_id='+str(user_id)+' could not be found.'])
 	user = query_set[0]
 
 	profile = None
@@ -421,9 +483,10 @@ def view_profile(request, user_id, **kwargs):
 
 	context_dict = {}
 
-	if user_id == str(request.user.id):
+	print(user_id==request.user.id)
+	if int(user_id) == int(request.user.id):
 		context_dict = {
-			'user_form': UserForm(initial=model_to_dict(user)),
+			'user_form': EditUserForm(initial=model_to_dict(user)),
 			'profile_form': UserProfileForm(initial=model_to_dict(profile)),
 			'available_backends': load_backends(settings.AUTHENTICATION_BACKENDS),
 			'editing': 'editing' in kwargs and kwargs['editing'] == 'editing',
@@ -431,11 +494,12 @@ def view_profile(request, user_id, **kwargs):
 	context_dict['disp_user'] = user
 	context_dict['disp_user_is_sm'] = (user.is_superuser) or (Permission.objects.get(codename='site_manager') in user.user_permissions.all()) #user.has_perm('users.site_manager')
 
-	print(model_to_dict(profile))
-	print(UserProfileForm(initial=model_to_dict(profile)))
+	if 'error_messages' in kwargs:
+		context_dict['error_messages'] = kwargs['error_messages']
 
 	return render(request, 'profile.html', context_dict)
 
+@login_required
 def edit_profile(request):
 	# If it's a HTTP POST, we're interested in processing form data.
 	if request.method == 'POST':
@@ -452,7 +516,11 @@ def edit_profile(request):
 		else:
 			profile = query_set[0]
 
+
 		if 'username' in request.POST and request.POST.get('username'):
+			if User.objects.filter(username=str(request.POST.get('username'))).exists():
+				error_messages = ['Username "' + str(request.POST.get('username')) + '" is already taken.']
+				return view_profile(request, request.user.id, error_messages=error_messages)
 			user.username = request.POST.get('username')
 		if 'password' in request.POST and request.POST.get('password'):
 			user.set_password(request.POST.get('password'))
@@ -476,5 +544,5 @@ def edit_profile(request):
 
 	# Not a HTTP POST, this should never happen
 	else:
-		return HttpResponse('Error in edit_profile() see users.views')
+		return view_profile(request, request.user.id, error_messages=['An error occurred while editing profile.'])
 

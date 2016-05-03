@@ -22,8 +22,7 @@
                     <tr>
                         <th data-sortable="true">Username</th>
                         <th data-sortable="true">Name</th>
-                        <th>Action</th>
-                    </tr>
+                        <th>Action</th>                    </tr>
                 </thead>
                 <tbody data-link="row" class="rowlink">
                     {% for user in group.user_set.all|dictsort:'username' %}
