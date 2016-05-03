@@ -483,7 +483,6 @@ def view_profile(request, user_id, **kwargs):
 
 	context_dict = {}
 
-	print(user_id==request.user.id)
 	if int(user_id) == int(request.user.id):
 		context_dict = {
 			'user_form': EditUserForm(initial=model_to_dict(user)),

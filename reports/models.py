@@ -16,7 +16,9 @@ class Folder(models.Model):
 class Report(models.Model):
     creator = models.ForeignKey(User, related_name='creator')  # User ID of user who submitted report
     keyword = models.CharField(max_length=30,null=True,blank=True)
-    region = models.CharField(max_length=30,null=True,blank=True)
+
+    # region = models.CharField(max_length=30,null=True,blank=True)
+
     city = models.CharField(max_length=30,null=True,blank=True)
     region_code = models.CharField(max_length=30,null=True,blank=True)
     country = models.CharField(max_length=30,null=True,blank=True)

@@ -75,11 +75,11 @@
                                     <td>{{ user.first_name }} {{ user.last_name }}<small class="text-muted"> (name)</small></td>
                                 </tr>
                             {% endfor %}
-                            {% for report in report_results|dictsort:'creator' %}
+                            {% for report in report_results|dictsort:'creator.username' %}
                                 <tr>
-                                    <td><a href="{% url 'reports:detail' file_name=report.name %}">Report</td>
+                                    <td><a href="{% url 'reports:detail' file_name=report.name %}"></a>Report</td>
                                     <td>{{ report.name }}</td>
-                                    <td></a>{{ report.creator.username }}<small class="text-muted"> (creator)</small></td>
+                                    <td>{{ report.creator.username }}<small class="text-muted"> (creator)</small></td>
                                 </tr>
                             {% endfor %}
                             {% for group in group_results|dictsort:'name' %}
