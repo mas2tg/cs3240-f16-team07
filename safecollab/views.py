@@ -94,14 +94,14 @@ def search(request):
 		report_params = ['name', 'description', 'longDescription', 'keyword']
 		group_params = ['name']
 
-		# private reports of users in a group you are also in can only be found through the group
-
 		if query_type == 'All':
 			context_dict['user_results'] = User.objects.filter( make_query(raw_query, user_params) )
 			context_dict['report_results'] = Report.objects.filter( make_query(raw_query, report_params) )
 			context_dict['group_results'] = Group.objects.filter( make_query(raw_query, group_params) )
 			if not request.user.has_perm('users.site_manager'):
 				context_dict['report_results'] &= Report.objects.filter(Q(creator=request.user) | Q(private=False))
+				for user in User.objects.filter(groups__in=request.user.groups.all()):
+					context_dict['report_results'] |= Report.objects.filter(creator=user)
 				context_dict['group_results'] &= request.user.groups.all()
 		elif query_type == 'Users':
 			context_dict['user_results'] = User.objects.filter( make_query(raw_query, user_params) )
@@ -109,6 +109,8 @@ def search(request):
 			context_dict['report_results'] = Report.objects.filter( make_query(raw_query, report_params) )
 			if not request.user.has_perm('users.site_manager'):
 				context_dict['report_results'] &= Report.objects.filter(Q(creator=request.user) | Q(private=False))
+				for user in User.objects.filter(groups__in=request.user.groups.all()):
+					context_dict['report_results'] |= Report.objects.filter(creator=user)
 		elif query_type == 'Groups':
 			context_dict['group_results'] = Group.objects.filter( make_query(raw_query, group_params) )
 			if not request.user.has_perm('users.site_manager'):
@@ -120,6 +122,8 @@ def search(request):
 			if not request.user.has_perm('users.site_manager'):
 				context_dict['group_results'] &= request.user.groups.all()
 				context_dict['report_results'] &= Report.objects.filter(Q(creator=request.user) | Q(private=False))
+				for user in User.objects.filter(groups__in=request.user.groups.all()):
+					context_dict['report_results'] |= Report.objects.filter(creator=user)
 
 		return render(request, 'search.html', context_dict)
 	
