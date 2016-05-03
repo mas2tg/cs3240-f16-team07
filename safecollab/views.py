@@ -3,7 +3,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group, Permission
 from users.models import UserProfile, UserForm, UserProfileForm
-from reports.models import Report, ReportForm, Folder
+from reports.models import Report, ReportForm, Folder, File
 from django.db.models import Q
 from django.conf import settings
 from django.core import serializers
@@ -25,7 +25,7 @@ def contact(request):
 	return render(request, 'contact.html')
 
 def fda_index(request):
-        username = request.GET.get('username',default="Do not exist")
+        username = request.GET.get('username',default="Does not exist")
         username = User.objects.filter(username=username)
         category_list = Report.objects.filter(Q(private=False) | Q(creator=username))
         #context_dict = {'reports':category_list,"type":queryType)
@@ -33,6 +33,29 @@ def fda_index(request):
         #print(category_list)
         json_data = serializers.serialize("json",category_list)
         return HttpResponse(json_data,content_type='application/json')
+
+def fda_creator(request):
+        index = request.GET.get('index',default="Does not exist")
+        creator = User.objects.filter(id=index)
+        return HttpResponse(creator)
+
+def fda_folder(request):
+        index = request.GET.get('index',default="Does not exist")
+        #index = 1
+        folder = Folder.objects.filter(id=index)
+        return HttpResponse(folder[0].name)
+
+def fda_attachments(request):
+        report_name = request.GET.get('report_name', default="")
+        report = Report.objects.filter(name=report_name)
+        
+        #print(report.name)
+
+        attachments = File.objects.filter(report = report)
+        json_data = serializers.serialize("json",attachments)
+        #print(json_data)
+        return HttpResponse(json_data, content_type='application/json')
+        
 
 @login_required
 def home(request):
