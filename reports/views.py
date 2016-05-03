@@ -12,11 +12,18 @@ from django.http import HttpRequest
 
 def index(request, folder_name='$'):
     username = request.user
+    group = username.group.all()
     if(folder_name=='$'):
         if(request.user.has_perm('users.site_manager')):
             category_list = Report.objects.all()
         else:
             category_list = Report.objects.filter((Q(private=False) & ~Q(creator=username)) | (Q(creator=username) & Q(folder=None)) )
+        for report in Report.objects.filter(Q(private=False)):
+            groupR = report.creator.group.all();
+            g= group&groupR;
+            if not g:
+                category_list.push(report)
+
 
 
 
@@ -173,22 +180,23 @@ def add_report(request): #the user is able to select multiple files
 
                 file = os.path.join(settings.GEOIP_PATH, 'GeoLiteCity.dat')
 
-
-                gi = pygeoip.GeoIP(file)
-                list=gi.record_by_addr(ip)
-
-
-
-                area_code = list['region_code']
-                city = list['city']
-                country = list['country_name']
-
-
-                report = Report(creator_id=creator.id,region_code=area_code,city=city,country=country,keyword=keyword, encrypted=encrypted, name=name, description=description,longDescription=longDescription,private =private)
+                #
+                # gi = pygeoip.GeoIP(file)
+                # list=gi.record_by_addr(ip)
+                #
+                #
+                #
+                # area_code = list['region_code']
+                # city = list['city']
+                # country = list['country_name']
 
 
-                report.save()
+                # report = Report(creator_id=creator.id,region_code=area_code,city=city,country=country,keyword=keyword, encrypted=encrypted, name=name, description=description,longDescription=longDescription,private =private)
+                report = Report(creator_id=creator.id,keyword=keyword, encrypted=encrypted, name=name, description=description,longDescription=longDescription,private =private)
 
+                #
+                # report.save()
+                return HttpResponse(ip)
                 #file = File(report=report, path=paths) #pass variables to fields
 
                 paths = request.FILES.getlist('path')
