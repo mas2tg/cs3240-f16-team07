@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content_block %}
+
+<div class="text-center" style="position: absolute; z-index: 1000; left: 0; right: 0;"> <h3 style="display: inline; margin-top: 0;">About Us</h3> </div>
+<br></br>
+
+<body>
+
+{% load staticfiles %}
+
+  <p><em>TEAM 7</em></p>
+  <p>Team 7 consists of Nate, Marco, Cameron, and Kevin. We are committed to not just the quality of SafeCollab, but the security and ease of use as well. blah blah blah (adding more later)</p>
+  <br>
+  <div class="row">
+    <div class="col-sm-3">
+      <p><strong>Nate Williams</strong></p><br>
+      <img src="{% static 'about/nate.jpg' %}" class="img-circle person" alt=" " width="100" height="100">
+    </div>
+    <div class="col-sm-3">
+      <p><strong>Marco Azevedo</strong></p><br>
+      <img src="{% static 'about/marco.jpg' %}" class="img-circle person" alt=" " width="100" height="100">
+    </div>
+    <div class="col-sm-3">
+      <p><strong>Cameron Champeau</strong></p><br>
+      <img src="{% static 'about/cameron.jpg' %}" class="img-circle person" alt=" " width="100" height="100">
+    </div>
+    <div class="col-sm-3">
+      <p><strong>Kevin Qin</strong></p><br>
+      <img src="{% static 'about/kevin.jpg' %}" class="img-circle person" alt=" " width="100" height="100">
+    </div>
+  </div>
+
+</body>
+
+  </div>
+
+{% endblock %}

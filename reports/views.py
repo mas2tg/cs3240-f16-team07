@@ -4,17 +4,26 @@ from reports.models import Report, ReportForm, Folder, FileForm, File
 #from auth.models
 from django.db.models import Q
 from django.utils.encoding import smart_str
+# from django_geoip.models import IpRange
+import pygeoip
 import os
-import re
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+from safecollab import settings
+from django.http import HttpRequest
 
 def index(request, folder_name='$'):
     username = request.user
+    group = username.groups.all()
     if(folder_name=='$'):
         if(request.user.has_perm('users.site_manager')):
             category_list = Report.objects.all()
         else:
             category_list = Report.objects.filter((Q(private=False) & ~Q(creator=username)) | (Q(creator=username) & Q(folder=None)) )
+        for report in Report.objects.filter(Q(private=False)):
+            groupR = report.creator.groups.all();
+            g= group&groupR;
+            if not g:
+                category_list.push(report)
+
 
 
 
@@ -27,7 +36,7 @@ def index(request, folder_name='$'):
         query = request.GET.get("q")
         if(query):
             if (queryType=="name"):
-                search = query.split(" ")
+                search = query.split()
                 if "and" in search:
                     x=search.index('and')
                     category_list=category_list.filter(Q(name__icontains=search[x-1]))
@@ -98,6 +107,7 @@ def edit(request,file_name): #TODO: implement delete option for individual files
     if request.method== "POST":
         #report = report.save(commit=False)
         report.name = request.POST.get('name')
+        report.keyword = request.POST.get('keyword')
         report.description = request.POST.get('description')
         report.longDescription = request.POST.get('longDescription')
         report.private = True if request.POST.get('private') else False
@@ -144,32 +154,58 @@ def delete_file(request, path, report_name):
     return render(request, 'edit.html', context_dict)
     #return HttpResponse("File deleted!")
 
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
 def add_report(request): #the user is able to select multiple files
         if request.method == 'POST':
                 form = ReportForm(request.POST, request.FILES)
                 creator = request.user
                 name = request.POST.get('name')
+                keyword = request.POST.get('keyword')
                 description = request.POST.get('description')
                 
                 encrypted = True if request.POST.get('encrypted') else False
                 longDescription = request.POST.get('longDescription')
                 private = True if request.POST.get('private') else False
 
-                report = Report(creator_id=creator.id, encrypted=encrypted, name=name, description=description,longDescription=longDescription,private =private)
+                ip = get_client_ip(request)
+
+
+
+                file = os.path.join(settings.GEOIP_PATH, 'GeoLiteCity.dat')
 
                 
+                gi = pygeoip.GeoIP(file)
+                info=gi.record_by_addr(ip)
                 
-                # Now we save the UserProfile model instance.
+                
+                
+                area_code = None
+                city = None
+                country = None
+                if info != None:
+                    area_code = info['region_code']
+                    city = info['city']
+                    country = info['country_name']
+
+
+                report = Report(creator_id=creator.id,region_code=area_code,city=city,country=country,keyword=keyword, encrypted=encrypted, name=name, description=description,longDescription=longDescription,private =private)
+
+                #
                 report.save()
+                # file = File(report=report, path=paths) #pass variables to fields
 
-                #file = File(report=report, path=paths) #pass variables to fields
-                
                 paths = request.FILES.getlist('path')
                 #print(request.FILES)
                 for path in paths:
                     File(report=report, path=path).save() #pass variables to fields
-                    
-                #file.save()
+
 
                 return HttpResponseRedirect('/reports/$/')
 
@@ -186,5 +222,11 @@ def add_folder(request):
     folder.save()
     return HttpResponseRedirect('/reports/$/')
 
+def delete_folder(request,folder_id):
 
-
+    folder=get_object_or_404(Folder,id=folder_id)
+    reports_list = Report.objects.filter(folder=folder)
+    for report in reports_list:
+        report.folder= None
+    folder.delete()
+    return HttpResponseRedirect('/reports/$/')

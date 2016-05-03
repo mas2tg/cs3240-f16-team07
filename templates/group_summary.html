@@ -10,7 +10,8 @@
 
     <ul class="nav nav-pills nav-stacked col-md-3">
     <li class="active"><a data-toggle="pill" href="#members">Members</a></li>
-    {% if perms.users.site_manager %}<li><a data-toggle="pill" href="#reports">Private reports</a></li>{% endif %}
+    <li><a data-toggle="pill" href="#all-reports">All reports</a></li>
+    <li><a data-toggle="pill" href="#private-reports">Private reports</a></li>
     </ul>
 
     <div class="tab-content col-md-9">
@@ -32,7 +33,7 @@
                         <td>{{ user.first_name }} {{ user.last_name }}</td>
                         <td class="rowlink-skip"><a href="{% url 'users:remove-user-from-group' group_id=group.id user_id=user.id %}">Remove</a></td>
                     </tr>
-                    {% endfor %}               
+                    {% endfor %}
                 </tbody>
             </table>
 
@@ -52,12 +53,63 @@
 
         </div>
 
-        {% if perms.users.site_manager %}
-        <div id="reports" class="tab-pane fade">
-            To be implemented...
-            Should link to or display private reports associated with this group. If there are not any, should report "There are private reports in this group."
+        <div id="all-reports" class="tab-pane fade">
+
+            {% if reports %} <!-- Group has reports -->
+            <table data-toggle="table">
+                <thead>
+                    <tr>
+                        <th data-sortable="true">Creator</th>
+                        <th data-sortable="true">Name</th>
+                        <th data-sortable="true">Description</th>
+                        <th data-sortable="true">Private</th>
+                    </tr>
+                </thead>
+                <tbody data-link="row" class="rowlink">
+                    {% for report in reports|dictsort:'creator.username' %}
+                    <tr>
+                        <td><a href="{% url 'reports:detail' file_name=report.name %}"></a>{{ report.creator.username }}</td>
+                        <td>{{ report.name }}</td>
+                        <td>{{ report.creator.description }}</td>
+                        <td>{% if report.private %}✓{% else %} {% endif %}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            There are no reports created by members of this group.
+            {% endif %}
+
         </div>
-        {% endif %}
+
+        <div id="private-reports" class="tab-pane fade">
+
+            {% if private_reports %} <!-- Group has reports -->
+            <table data-toggle="table">
+                <thead>
+                    <tr>
+                        <th data-sortable="true">Creator</th>
+                        <th data-sortable="true">Name</th>
+                        <th data-sortable="true">Description</th>
+                        <th data-sortable="true">Private</th>
+                    </tr>
+                </thead>
+                <tbody data-link="row" class="rowlink">
+                    {% for report in private_reports|dictsort:'creator.username' %}
+                    <tr>
+                        <td><a href="{% url 'reports:detail' file_name=report.name %}"></a>{{ report.creator.username }}</td>
+                        <td>{{ report.name }}</td>
+                        <td>{{ report.creator.description }}</td>
+                        <td>{% if report.private %}✓{% else %} {% endif %}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            There are no private reports created by members of this group.
+            {% endif %}
+
+        </div>
     </div>
 
     {% else %}

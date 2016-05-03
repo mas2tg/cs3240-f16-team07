@@ -14,6 +14,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 PROJECT_PATH = os.path.abspath(os.path.join(BASE_DIR, os.pardir))
 DATABASE_PATH = os.path.join(PROJECT_PATH, 'safecollab.db')
 TEMPLATE_PATH = os.path.join(BASE_DIR, 'templates')
+GEOIP_PATH = os.path.join(BASE_DIR, 'geodata')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
@@ -44,6 +45,9 @@ INSTALLED_APPS = (
     'users',
     'reports',
     'inbox',
+    'django_geoip',
+
+
 )
 
 MIDDLEWARE_CLASSES = (
@@ -56,11 +60,12 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'users.middleware.ForceLogoutMiddleware',
+
 )
 
 ROOT_URLCONF = 'safecollab.urls'
 LOGIN_URL = '/'
-LOGIN_REDIRECT_URL = '/home'
+LOGIN_REDIRECT_URL = '/search'
 
 WSGI_APPLICATION = 'safecollab.wsgi.application'
 

@@ -8,16 +8,20 @@
 
             {% csrf_token %}
     {% for report in reports %}
-            File name: {{ report.name }}
+        {%if has_permission or report.creator ==  request.user or report.private == false%}
+            File name: {{ report.name }}<br/>
+            Keyword: {{report.keyword}}
             <br />
             Owner of the File : {{report.creator}}<br/>
              Short Description: {{ report.description }}<br/>
             Long Description: <br/><div class="longDescription"> {{ report.longDescription }}</div><br/>
             Attachments: <a href="/reports/{{ report.path }}">{{ report.path }}</a><br/>
+       <!-- Where file is created: {{report.country}}, {{report.region_code}},{{report.city}}<br/>-->
 	    {% for file in files %}
 
 	      <a href="{{ MEDIA_URL }}{{ file.path }}">{{file.path}}</a><br/>
 	    {% endfor %}
+
              Private:{{ report.private }}<br/>
              Encrypted:{{ report.encrypted }}<br/>
              timeCreated: {{ report.time }}<br/>
@@ -25,11 +29,21 @@
         {%if has_permission or report.creator ==  request.user%}
          <a class="button" method="POST" href="/reports/delete/{{ report.name }}">Delete</a>
 
-        {%else%}
-        Delete
-        {% endif %}
-      {% endfor %}
-    <br/>
+            {%else%}
+            Delete
+         {% endif %}
+
+         {% else %}
+            Invalid access
+
+            {% endif %}
+
+
+
+            {% endfor %}
+            <br/>
+
+
 
 
     {% else %}

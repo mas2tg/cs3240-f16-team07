@@ -46,15 +46,28 @@
 			body {
 				/* Margin bottom by footer height */
 				margin-bottom: 50px;
-				background: url("/static/backgrounds/Blurred Backgrounds (1).jpg") no-repeat center center fixed; 
+				background: #668A4F url("{% static 'backgrounds/Blurred Backgrounds (1).jpg' %}") no-repeat center center fixed; 
 			    -webkit-background-size: cover;
 			    -moz-background-size: cover;
 			    -o-background-size: cover;
 			    background-size: cover;
 			}
+			/* remove div container wrapping navbar to remove margins */
+			/*.navbar-wrapper, .navbar, .navbar-inner, .container{
+				margin-left:0;
+				margin-right:0;
+				padding-left:10px;
+				padding-right:10px;
+			}*/
 			.navbar {
 				/* removes line appearing under navbar */
 				border: 0;
+				text-align: center;
+			}
+			.navbar-center {
+				display: inline-block;
+				float: none;
+				vertical-align: top;
 			}
 			.footer {
 				position: absolute;
@@ -63,11 +76,17 @@
 				/* Set the fixed height of the footer here */
 				height: 45px;
 			}
-			.navbar .dropdown:hover .dropdown-menu {
+			.dropdown-mouseover:hover .dropdown-menu {
 				display: block;
 			}
+			.center-dropdown {
+				left: 50%;
+				right: auto;
+				text-align: center;
+				transform: translate(-50%, 0);
+			}
 	        .navbar-prof-pic-container {
-				background: #000;
+				background-color: black;
 				color: #fff;
 				width: 28px;
 				height: 28px;
@@ -86,8 +105,6 @@
 				justify-content: center;
 			}
 			.navbar-prof-pic {
-				padding-top: 0;
-				padding-bottom: 0;
 				max-width: 28px;
 				max-height: 28px;
 			}
@@ -106,6 +123,24 @@
 	            color:white;
 	        }
 
+	        .error-msg {
+	        	margin-bottom: 0;
+				-webkit-border-radius: 0 !important;
+				-moz-border-radius: 0 !important;
+				border-radius: 0 !important;
+				padding-top: 2px;
+				padding-bottom: 2px;
+	        }
+	        .field-error {
+	        	color: red;
+	        }
+        	.field-error ul {
+        		list-style-type: none;
+        		padding: 0;
+        	}
+        	.field-error ul, li {
+        		display: inline;
+        	}
     	</style>
 
     	{% block css_block %}{% endblock %}
@@ -125,11 +160,12 @@
 			    	{% url 'home' as home_url %}
 			    	{% url 'reports:index' as reports_url %}
 			    	{% url 'groups' as groups_url %}
+			    	{% url 'search' as search_url %}
 			    	<li {% if home_url in request.path %}class="active"{% endif %}><a href="{{ home_url }}">Home</a></li>
 			    	<li {% if reports_url in request.path %}class="active"{% endif %}><a href="{{ reports_url }}">Reports</a></li>
 			    	
 			    	{% if user.groups.all %} <!-- User has groups -->
-			    	<li class="dropdown{% if groups_url in request.path %} active{% endif %}">
+			    	<li class="dropdown dropdown-mouseover {% if groups_url in request.path %} active{% endif %}">
 			    		<a href="{{ groups_url }}">Groups <span class="caret"></span></a>
         				<ul class="dropdown-menu">
 				    		{% for group in user.groups.all %}
@@ -145,6 +181,13 @@
 		    		{% endif %}
 
 			    </ul>
+
+			    <ul class="nav navbar-nav navbar-center">
+				    <li class="{% if search_url in request.path %} active{% endif %}">
+						<a href="{{ search_url }}"><b><span class="glyphicon glyphicon-search"></span></b></span></a>
+					</li>
+				</ul>
+
 			    {% endif %}
 
 			    <ul class="nav navbar-nav navbar-right">
@@ -191,11 +234,11 @@
 				    	<a href="{{ profile_url }}">
 							{% if user.user_profile.picture %}
 							<div class="navbar-text navbar-prof-pic-container">
-								<img class="img-responsive navbar-prof-pic" src="{{ user.user_profile.picture.url }}" />
+								<div><img class="img-responsive navbar-prof-pic" src="{{ user.user_profile.picture.url }}" /></div>
 							</div>
 							{% else %}
 							<div class="navbar-text navbar-prof-pic-container" style="background-color: inherit;">
-								<span class="glyphicon glyphicon-user" style="font-size: 20px;"></span>
+								<div><span class="glyphicon glyphicon-user" style="font-size: 20px;"></span></div>
 							</div>
 							{% endif %}
 				    		{{ user.first_name }} {{ user.last_name }}
@@ -208,13 +251,20 @@
 						</a>
 				    </li>
 				    <li>
-        				<a href="/users/logout"><span class="glyphicon glyphicon-log-out"></span> Logout</a>
+        				<a href="{% url 'users:logout' %}"><span class="glyphicon glyphicon-log-out"></span> Logout</a>
     				</li>
 				    
 				    {% endif %}
     				<!-- <li><a href="#"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li> -->
     			</ul>
 			</div>
+			{% if error_messages %}
+				{% for error_msg in error_messages %}
+					<div class="alert alert-danger error-msg">
+						<div class="container"><span class="glyphicon glyphicon-exclamation-sign"></span> {{ error_msg | safe }}</div>
+					</div>
+				{% endfor %}
+			{% endif %}
 		</nav>
 
         <div class="container">

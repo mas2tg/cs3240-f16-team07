@@ -1,13 +1,19 @@
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 from inbox.models import Message
 from crypto.models import AESCipher
 import os
 
-def index(request):
-	return render(request, 'inbox.html', {})
+@login_required
+def index(request, **kwargs):
+	context_dict = {}
+	if 'error_messages' in kwargs:
+		context_dict['error_messages'] = kwargs['error_messages']
+	return render(request, 'inbox.html', context_dict)
 
+@login_required
 def send(request):
 	if request.method == 'POST':
 		sender = request.user
@@ -27,18 +33,18 @@ def send(request):
 
 	else:
 		# This should never happen
-		return HttpResponse('Improper arrival at send, see inbox.views')
+		return index(request, error_messages = ['Invalid request.'])
 
+@login_required
 def delete(request):
 	if request.method == 'POST':
 		message_ids = request.POST.getlist('message_ids[]')
 		for message_id in message_ids:
-			print(message_id)
-			Message.objects.get(id=message_id)
-			print('test')
-			Message.objects.get(id=message_id).delete()
+			message = Message.objects.get(id=message_id)
+			if message.recipient != request.user.id:
+				return index(request, error_messages = ['You are not authorized to modify ' + ('this message.' if len(message_ids) == 1 else 'these messages.')])
+			message.delete()
 		
-		print('test')
 		unread = request.user.get_unread_messages()
 		data = {
 			'message_count': unread.count(),
@@ -47,13 +53,16 @@ def delete(request):
 
 	else:
 		# This should never happen
-		return HttpResponse('Improper arrival at delete, see inbox.views')
+		return index(request, error_messages = ['Invalid request.'])
 
+@login_required
 def mark_as_read(request):
 	if request.method == 'POST':
 		message_ids = request.POST.getlist('message_ids[]')
 		for message_id in message_ids:
 			message = Message.objects.get(id=message_id)
+			if message.recipient != request.user.id:
+				return index(request, error_messages = ['You are not authorized to modify ' + ('this message.' if len(message_ids) == 1 else 'these messages.')])
 			message.read = True
 			message.save()
 		unread = request.user.get_unread_messages()
@@ -64,13 +73,16 @@ def mark_as_read(request):
 
 	else:
 		# This should never happen
-		return HttpResponse('Improper arrival at mark_as_read, see inbox.views')
+		return index(request, error_messages = ['Invalid request.'])
 
+@login_required
 def mark_as_unread(request):
 	if request.method == 'POST':
 		message_ids = request.POST.getlist('message_ids[]')
 		for message_id in message_ids:
 			message = Message.objects.get(id=message_id)
+			if message.recipient != request.user.id:
+				return index(request, error_messages = ['You are not authorized to modify ' + ('this message.' if len(message_ids) == 1 else 'these messages.')])
 			message.read = False
 			message.save()
 
@@ -82,11 +94,14 @@ def mark_as_unread(request):
 
 	else:
 		# This should never happen
-		return HttpResponse('Improper arrival at mark_as_unread, see inbox.views')
+		return index(request, error_messages = ['Invalid request.'])
 
+@login_required
 def decrypt(request):
 	if request.method == 'POST':
 		message_id = request.POST.get('message_id')
+		if message.recipient != request.user.id:
+			return index(request, error_messages = ['You are not authorized to modify this message.'])
 		message = Message.objects.get(id=message_id)
 		raw = AESCipher(bytes(message.key)).decrypt(message.body).decode('utf-8')
 		data = {
@@ -96,4 +111,4 @@ def decrypt(request):
 
 	else:
 		# This should never happen
-		return HttpResponse('Improper arrival at mark_as_unread, see inbox.views')
+		return index(request, error_messages = ['Invalid request.'])
