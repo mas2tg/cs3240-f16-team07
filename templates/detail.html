@@ -25,12 +25,11 @@
              Private:{{ report.private }}<br/>
              Encrypted:{{ report.encrypted }}<br/>
              timeCreated: {{ report.time }}<br/>
+        {%if report.creator ==  request.user%}
          <a class="button" method="POST" href="/reports/edit/{{ report.name }}">Edit</a>
-        {%if has_permission or report.creator ==  request.user%}
          <a class="button" method="POST" href="/reports/delete/{{ report.name }}">Delete</a>
 
             {%else%}
-            Delete
          {% endif %}
 
          {% else %}
