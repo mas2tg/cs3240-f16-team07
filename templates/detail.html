@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block body_block %}
+{% block content_block %}
     <h1>{{ test }}</h1>
 
 
@@ -15,8 +15,9 @@
             Owner of the File : {{report.creator}}<br/>
              Short Description: {{ report.description }}<br/>
             Long Description: <br/><div class="longDescription"> {{ report.longDescription }}</div><br/>
-            Attachments: <a href="/reports/{{ report.path }}">{{ report.path }}</a><br/>
        <!-- Where file is created: {{report.country}}, {{report.region_code}},{{report.city}}<br/>-->
+
+            Attachments: <a href="/reports/{{ report.path }}">{{ report.path }}</a><br/>
 	    {% for file in files %}
 
 	      <a href="{{ MEDIA_URL }}{{ file.path }}">{{file.path}}</a><br/>
@@ -25,12 +26,11 @@
              Private:{{ report.private }}<br/>
              Encrypted:{{ report.encrypted }}<br/>
              timeCreated: {{ report.time }}<br/>
+        {%if report.creator ==  request.user%}
          <a class="button" method="POST" href="/reports/edit/{{ report.name }}">Edit</a>
-        {%if has_permission or report.creator ==  request.user%}
          <a class="button" method="POST" href="/reports/delete/{{ report.name }}">Delete</a>
 
             {%else%}
-            Delete
          {% endif %}
 
          {% else %}

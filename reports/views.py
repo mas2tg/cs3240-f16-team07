@@ -9,6 +9,7 @@ import pygeoip
 import os
 from safecollab import settings
 from django.http import HttpRequest
+from django.contrib.auth.models import User, Group
 
 def index(request, folder_name='$'):
     username = request.user
@@ -90,7 +91,14 @@ def index(request, folder_name='$'):
 def detail(request,file_name):
     report = Report.objects.filter(name=file_name)
 
-    has_permission= (request.user.has_perm('users.site_manager'))
+
+    reports_user_can_access = Report.objects.filter(Q(creator=request.user) | Q(private=False))
+    if not request.user.has_perm('users.site_manager'):
+        for user in User.objects.filter(groups__in=request.user.groups.all()):
+            reports_user_can_access |= Report.objects.filter(creator=user)
+    
+    has_permission = report[0] in reports_user_can_access
+
     files = (File.objects.filter(report=report))
     context_dict = {'reports':report,"has_permission":has_permission,"files":files}
 
