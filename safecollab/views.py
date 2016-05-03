@@ -7,6 +7,7 @@ from reports.models import Report, ReportForm, Folder
 from django.db.models import Q
 from django.conf import settings
 from django.core import serializers
+from functools import reduce
 
 def index(request):
 	if request.user and request.user.is_authenticated():
@@ -90,20 +91,24 @@ def search(request):
 		context_dict = { 'query_type': query_type }
 
 		user_params = ['username', 'first_name', 'last_name', 'email']
-		report_params = ['name', 'description', 'longDescription']
+		report_params = ['name', 'description', 'longDescription', 'keyword']
 		group_params = ['name']
+
+		# private reports of users in a group you are also in can only be found through the group
 
 		if query_type == 'All':
 			context_dict['user_results'] = User.objects.filter( make_query(raw_query, user_params) )
 			context_dict['report_results'] = Report.objects.filter( make_query(raw_query, report_params) )
 			context_dict['group_results'] = Group.objects.filter( make_query(raw_query, group_params) )
 			if not request.user.has_perm('users.site_manager'):
+				context_dict['report_results'] &= Report.objects.filter(Q(creator=request.user) | Q(private=False))
 				context_dict['group_results'] &= request.user.groups.all()
-
 		elif query_type == 'Users':
 			context_dict['user_results'] = User.objects.filter( make_query(raw_query, user_params) )
 		elif query_type == 'Reports':
 			context_dict['report_results'] = Report.objects.filter( make_query(raw_query, report_params) )
+			if not request.user.has_perm('users.site_manager'):
+				context_dict['report_results'] &= Report.objects.filter(Q(creator=request.user) | Q(private=False))
 		elif query_type == 'Groups':
 			context_dict['group_results'] = Group.objects.filter( make_query(raw_query, group_params) )
 			if not request.user.has_perm('users.site_manager'):
@@ -114,6 +119,7 @@ def search(request):
 			context_dict['group_results'] = Group.objects.filter( make_query(raw_query, group_params) )
 			if not request.user.has_perm('users.site_manager'):
 				context_dict['group_results'] &= request.user.groups.all()
+				context_dict['report_results'] &= Report.objects.filter(Q(creator=request.user) | Q(private=False))
 
 		return render(request, 'search.html', context_dict)
 	
@@ -138,6 +144,10 @@ def group_summary(request, group_id, **kwargs):
 	if query_set.exists():
 		group = query_set[0]
 		users = group.user_set.all()
+		reports = None
+		for user in users:
+			if reports == None: reports = Report.objects.filter(creator=user); continue
+			reports |= Report.objects.filter(creator=user)
 
 		if not request.user.has_perm('users.site_manager') and request.user not in users:
 			error_messages = ['You do not have permission to view group ' + str(group.name) + '.']
@@ -146,6 +156,8 @@ def group_summary(request, group_id, **kwargs):
 		context_dict = {
 			'group': group,
 			'users': users,
+			'reports': reports,
+			'private_reports': reports & Report.objects.filter(private=True),
 			'is_member': request.user.groups.filter(id=int(group_id)).exists(),
 		}
 		
