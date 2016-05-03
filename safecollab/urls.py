@@ -22,6 +22,9 @@ urlpatterns = patterns('',
     url(r'^home/', views.home, name='home'),
     url(r'^$', views.index, name='index'),
     url(r'^fda_index/$', views.fda_index, name='fda_index'),
+    url(r'^fda_attachments/$', views.fda_attachments, name='fda_attachments'),
+    url(r'^fda_creator/$', views.fda_creator, name='fda_creator'),
+    url(r'^fda_folder/$', views.fda_folder, name='fda_folder'),
 )
 
 
