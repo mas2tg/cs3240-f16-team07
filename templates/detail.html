@@ -15,12 +15,12 @@
             Owner of the File : {{report.creator}}<br/>
              Short Description: {{ report.description }}<br/>
             Long Description: <br/><div class="longDescription"> {{ report.longDescription }}</div><br/>
+       <!-- Where file is created: {{report.country}}, {{report.region_code}},{{report.city}}<br/>-->
 
             Attachments: <a href="/reports/{{ report.path }}">{{ report.path }}</a><br/>
 	    {% for file in files %}
 
 	      <a href="{{ MEDIA_URL }}{{ file.path }}">{{file.path}}</a><br/>
->>>>>>> a341593e4222b9a5efd4b98ea5f7f488bbcea6c2
 	    {% endfor %}
 
              Private:{{ report.private }}<br/>
