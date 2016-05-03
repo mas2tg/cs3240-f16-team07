@@ -23,7 +23,7 @@ GEOIP_PATH = os.path.join(BASE_DIR, 'geodata')
 SECRET_KEY = '9e=qr&gq)jdg2_=p8=$y@$ro*6b)s-qp*i3xzgsb+3pn2=ih1)'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 TEMPLATE_DEBUG = True
 
