@@ -41,7 +41,7 @@ def delete(request):
 		message_ids = request.POST.getlist('message_ids[]')
 		for message_id in message_ids:
 			message = Message.objects.get(id=message_id)
-			if message.recipient != request.user.id:
+			if message.recipient != request.user:
 				return index(request, error_messages = ['You are not authorized to modify ' + ('this message.' if len(message_ids) == 1 else 'these messages.')])
 			message.delete()
 		
@@ -61,7 +61,7 @@ def mark_as_read(request):
 		message_ids = request.POST.getlist('message_ids[]')
 		for message_id in message_ids:
 			message = Message.objects.get(id=message_id)
-			if message.recipient != request.user.id:
+			if message.recipient != request.user:
 				return index(request, error_messages = ['You are not authorized to modify ' + ('this message.' if len(message_ids) == 1 else 'these messages.')])
 			message.read = True
 			message.save()
@@ -81,7 +81,7 @@ def mark_as_unread(request):
 		message_ids = request.POST.getlist('message_ids[]')
 		for message_id in message_ids:
 			message = Message.objects.get(id=message_id)
-			if message.recipient != request.user.id:
+			if message.recipient != request.user:
 				return index(request, error_messages = ['You are not authorized to modify ' + ('this message.' if len(message_ids) == 1 else 'these messages.')])
 			message.read = False
 			message.save()
@@ -100,7 +100,7 @@ def mark_as_unread(request):
 def decrypt(request):
 	if request.method == 'POST':
 		message_id = request.POST.get('message_id')
-		if message.recipient != request.user.id:
+		if message.recipient != request.user:
 			return index(request, error_messages = ['You are not authorized to modify this message.'])
 		message = Message.objects.get(id=message_id)
 		raw = AESCipher(bytes(message.key)).decrypt(message.body).decode('utf-8')
