@@ -114,7 +114,7 @@ def search(request):
 		context_dict = { 'query_type': query_type }
 
 		user_params = ['username', 'first_name', 'last_name', 'email']
-		report_params = ['name', 'description', 'longDescription', 'keyword']
+		report_params = ['creator__username', 'name', 'description', 'longDescription', 'keyword']
 		group_params = ['name']
 
 		if query_type == 'All':

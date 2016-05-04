@@ -19,11 +19,7 @@ def index(request, folder_name='$'):
             category_list = Report.objects.all()
         else:
             category_list = Report.objects.filter((Q(private=False) & ~Q(creator=username)) | (Q(creator=username) & Q(folder=None)) )
-        for report in Report.objects.filter(Q(private=False)):
-            groupR = report.creator.groups.all();
-            g= group&groupR;
-            if not g:
-                category_list.push(report)
+     
 
 
 

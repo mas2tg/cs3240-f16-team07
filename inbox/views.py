@@ -17,7 +17,10 @@ def index(request, **kwargs):
 def send(request):
 	if request.method == 'POST':
 		sender = request.user
-		recipient = User.objects.get(username=request.POST.get('recipient'))
+		query_set = User.objects.filter(username=request.POST.get('recipient'))
+		if not query_set.exists():
+			return index(request, error_messages = ['User "' + str(request.POST.get('recipient')) + '" could not be found.']) 
+		recipient = query_set[0]
 		body = request.POST.get('body')
 		encrypt = True if request.POST.get('encrypt') else False
 		key = None
@@ -100,9 +103,9 @@ def mark_as_unread(request):
 def decrypt(request):
 	if request.method == 'POST':
 		message_id = request.POST.get('message_id')
+		message = Message.objects.get(id=message_id)
 		if message.recipient != request.user:
 			return index(request, error_messages = ['You are not authorized to modify this message.'])
-		message = Message.objects.get(id=message_id)
 		raw = AESCipher(bytes(message.key)).decrypt(message.body).decode('utf-8')
 		data = {
 			'raw': raw,
