@@ -28,8 +28,6 @@ urlpatterns = patterns('',
     url(r'^fda_folder/$', views.fda_folder, name='fda_folder'),
     url(r'^about/', views.about, name='about'),
     url(r'^contact/', views.contact, name='contact'),
+
+    (r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT, 'show_indexes': True, }),
 )
-
-
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
