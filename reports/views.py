@@ -116,7 +116,11 @@ def edit(request,file_name): #TODO: implement delete option for individual files
         report.longDescription = request.POST.get('longDescription')
         report.private = True if request.POST.get('private') else False
         report.encrypted = True if request.POST.get('encrypted') else False
-        folder_obj = get_object_or_404(Folder, name=request.POST.get('folder'))
+
+        folder_obj = None
+        query_set = Folder.filter(name=request.POST.get('folder'))
+        if not query_set.exists():
+            folder_obj = query_set[0]
         report.folder= folder_obj
 
 
