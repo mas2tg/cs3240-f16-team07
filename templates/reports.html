@@ -29,6 +29,7 @@
           Long Description: <input type="text" name="longDescription" value="" size="30" /><br/>
           Folder:  <select name="type">
           {% if folders %}
+          <option value=""></option>
           {% for folder in folders %}
           <option value="{{ folder.name }}">{{  folder.name}}</option>
 
